@@ -21,4 +21,12 @@ impl<F: PrimeField> Builder<F> {
         self.pointer += 1;
         Wire::new(pointer)
     }
+
+    pub(crate) fn equal_gate(&mut self, a: F, b: F) {
+        self.add_constraint(a, F::one(), b)
+    }
+
+    fn add_constraint(&mut self, a: F, b: F, c: F) {
+        self.r1cs.push(Constraint::new(a, b, c))
+    }
 }
