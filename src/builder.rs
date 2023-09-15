@@ -1,4 +1,5 @@
 use crate::constraint::Constraint;
+use crate::gadget::Gadget;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -28,5 +29,9 @@ impl<F: PrimeField> Builder<F> {
 
     fn add_constraint(&mut self, a: F, b: F, c: F) {
         self.r1cs.push(Constraint::new(a, b, c))
+    }
+
+    pub(crate) fn build(self) -> Gadget<F> {
+        Gadget::new(self.r1cs)
     }
 }
