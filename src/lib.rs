@@ -1,5 +1,6 @@
+mod builder;
 mod constraint;
-mod gadget;
+mod wire;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

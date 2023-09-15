@@ -1,4 +1,5 @@
 use crate::constraint::Constraint;
+use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
 
@@ -13,5 +14,11 @@ impl<F: PrimeField> Builder<F> {
             pointer: 1,
             r1cs: Vec::new(),
         }
+    }
+
+    pub(crate) fn wire(&mut self) -> Wire {
+        let pointer = self.pointer;
+        self.pointer += 1;
+        Wire::new(pointer)
     }
 }
