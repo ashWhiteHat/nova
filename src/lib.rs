@@ -1,3 +1,4 @@
+mod assignment;
 mod builder;
 mod constraint;
 mod gadget;
