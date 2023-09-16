@@ -11,7 +11,7 @@ mod tests {
     use bls_12_381::Fr as BlsScalar;
 
     #[test]
-    fn it_works() {
+    fn equal_gate_test() {
         let mut builder = Builder::<BlsScalar>::new();
         let (a, b) = (builder.wire(), builder.wire());
         builder.equal_gate(a.get(), b.get());

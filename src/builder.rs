@@ -32,6 +32,18 @@ impl<F: PrimeField> Builder<F> {
     }
 
     pub(crate) fn build(self) -> Gadget<F> {
-        Gadget::new(self.r1cs)
+        let init = vec![F::zero()];
+        let (mut l_c, mut r_c, mut o_c) = (init.clone(), init.clone(), init);
+        self.r1cs.iter().for_each(|constraint| {
+            let Constraint {
+                left,
+                right,
+                output,
+            } = constraint;
+            l_c.push(*left);
+            r_c.push(*right);
+            o_c.push(*output);
+        });
+        Gadget::new(l_c, r_c, o_c)
     }
 }
