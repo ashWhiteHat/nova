@@ -4,17 +4,22 @@ mod constraint;
 mod gadget;
 mod wire;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::assignment::Assignment;
+    use crate::builder::Builder;
+    use bls_12_381::Fr as BlsScalar;
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        let mut builder = Builder::<BlsScalar>::new();
+        let (a, b) = (builder.wire(), builder.wire());
+        builder.equal_gate(a.get(), b.get());
+        let gadget = builder.build();
+
+        let x = BlsScalar::one();
+        let assignments = vec![Assignment::new(a, x), Assignment::new(b, x)];
+        let is_sat = gadget.is_sat(assignments);
+        assert!(is_sat)
     }
 }

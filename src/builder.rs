@@ -5,7 +5,7 @@ use crate::wire::Wire;
 use zkstd::common::PrimeField;
 
 pub(crate) struct Builder<F: PrimeField> {
-    pointer: usize,
+    pointer: u64,
     r1cs: Vec<Constraint<F>>,
 }
 
@@ -23,8 +23,8 @@ impl<F: PrimeField> Builder<F> {
         Wire::new(pointer)
     }
 
-    pub(crate) fn equal_gate(&mut self, a: F, b: F) {
-        self.add_constraint(a, F::one(), b)
+    pub(crate) fn equal_gate(&mut self, a: impl Into<F>, b: impl Into<F>) {
+        self.add_constraint(a.into(), F::one(), b.into())
     }
 
     fn add_constraint(&mut self, a: F, b: F, c: F) {
