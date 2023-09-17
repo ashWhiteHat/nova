@@ -1,4 +1,5 @@
 use crate::constraint::Constraint;
+use crate::expression::Expression;
 use crate::gadget::Gadget;
 use crate::wire::Wire;
 
@@ -23,27 +24,20 @@ impl<F: PrimeField> Builder<F> {
         Wire::new(pointer)
     }
 
-    pub(crate) fn equal_gate(&mut self, a: impl Into<F>, b: impl Into<F>) {
-        self.add_constraint(a.into(), F::one(), b.into())
+    pub(crate) fn equal_gate(&mut self, a: impl Into<Expression<F>>, b: impl Into<Expression<F>>) {
+        self.add_constraint(a.into(), F::one().into(), b.into())
     }
 
-    fn add_constraint(&mut self, a: F, b: F, c: F) {
+    fn add_constraint(&mut self, a: Expression<F>, b: Expression<F>, c: Expression<F>) {
         self.r1cs.push(Constraint::new(a, b, c))
     }
 
-    pub(crate) fn build(self) -> Gadget<F> {
-        let init = vec![F::zero()];
-        let (mut l_c, mut r_c, mut o_c) = (init.clone(), init.clone(), init);
-        self.r1cs.iter().for_each(|constraint| {
-            let Constraint {
-                left,
-                right,
-                output,
-            } = constraint;
-            l_c.push(*left);
-            r_c.push(*right);
-            o_c.push(*output);
-        });
-        Gadget::new(l_c, r_c, o_c)
+    pub(crate) fn build(&self) -> Gadget<F> {
+        let Constraint {
+            left,
+            right,
+            output,
+        } = self.r1cs[0].clone();
+        Gadget::new(left, right, output)
     }
 }

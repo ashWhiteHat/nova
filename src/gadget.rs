@@ -1,16 +1,20 @@
 use crate::assignment::Assignment;
-use crate::constraint::Constraint;
+use crate::expression::Expression;
 
 use zkstd::common::PrimeField;
 
 pub(crate) struct Gadget<F: PrimeField> {
-    pub(crate) left_coeffs: Vec<F>,
-    pub(crate) right_coeffs: Vec<F>,
-    pub(crate) output_coeffs: Vec<F>,
+    pub(crate) left_coeffs: Expression<F>,
+    pub(crate) right_coeffs: Expression<F>,
+    pub(crate) output_coeffs: Expression<F>,
 }
 
 impl<F: PrimeField> Gadget<F> {
-    pub(crate) fn new(left_coeffs: Vec<F>, right_coeffs: Vec<F>, output_coeffs: Vec<F>) -> Self {
+    pub(crate) fn new(
+        left_coeffs: Expression<F>,
+        right_coeffs: Expression<F>,
+        output_coeffs: Expression<F>,
+    ) -> Self {
         Self {
             left_coeffs,
             right_coeffs,
@@ -31,9 +35,9 @@ impl<F: PrimeField> Gadget<F> {
     }
 }
 
-fn dot_product<F: PrimeField>(coeffs: &Vec<F>, witnessess: &Vec<Assignment<F>>) -> F {
+fn dot_product<F: PrimeField>(coeffs: &Expression<F>, witnessess: &Vec<Assignment<F>>) -> F {
     witnessess.iter().fold(F::zero(), |sum, assignment| {
         let (wire, value) = &assignment.0;
-        sum + coeffs[wire.get() as usize] * value
+        sum + coeffs.get(*wire) * value
     })
 }

@@ -15,7 +15,7 @@ mod tests {
     fn equal_gate_test() {
         let mut builder = Builder::<BlsScalar>::new();
         let (a, b) = (builder.wire(), builder.wire());
-        builder.equal_gate(a.get(), b.get());
+        builder.equal_gate(a, b);
         let gadget = builder.build();
 
         let x = BlsScalar::one();
