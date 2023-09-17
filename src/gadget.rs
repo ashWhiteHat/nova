@@ -3,7 +3,7 @@ use crate::expression::Expression;
 
 use zkstd::common::PrimeField;
 
-pub(crate) struct Gadget<F: PrimeField> {
+pub struct Gadget<F: PrimeField> {
     pub(crate) left_coeffs: Expression<F>,
     pub(crate) right_coeffs: Expression<F>,
     pub(crate) output_coeffs: Expression<F>,

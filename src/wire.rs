@@ -1,7 +1,5 @@
-use zkstd::common::PrimeField;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct Wire {
+pub struct Wire {
     pub(crate) pointor: u64,
 }
 

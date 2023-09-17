@@ -5,10 +5,12 @@ mod expression;
 mod gadget;
 mod wire;
 
+pub use assignment::Assignment;
+pub use builder::Builder;
+
 #[cfg(test)]
 mod tests {
-    use crate::assignment::Assignment;
-    use crate::builder::Builder;
+    use super::{Assignment, Builder};
 
     use bls_12_381::Fr as BlsScalar;
     use zkstd::common::PrimeField;
