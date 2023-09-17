@@ -10,3 +10,9 @@ impl<F: PrimeField> Assignment<F> {
         Assignment((wire, value))
     }
 }
+
+impl<F: PrimeField> Default for Assignment<F> {
+    fn default() -> Self {
+        Assignment((Wire::one(), F::one()))
+    }
+}
