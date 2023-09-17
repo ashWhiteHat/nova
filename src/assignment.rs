@@ -2,6 +2,7 @@ use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
 
+#[derive(Debug)]
 pub(crate) struct Assignment<F: PrimeField>(pub(crate) (Wire, F));
 
 impl<F: PrimeField> Assignment<F> {

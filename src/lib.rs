@@ -9,7 +9,9 @@ mod wire;
 mod tests {
     use crate::assignment::Assignment;
     use crate::builder::Builder;
+
     use bls_12_381::Fr as BlsScalar;
+    use zkstd::common::PrimeField;
 
     #[test]
     fn equal_gate_test() {
@@ -18,7 +20,7 @@ mod tests {
         builder.equal_gate(a, b);
         let gadget = builder.build();
 
-        let x = BlsScalar::one();
+        let x = BlsScalar::one().double();
         let assignments = vec![Assignment::new(a, x), Assignment::new(b, x)];
         let is_sat = gadget.is_sat(assignments);
         assert!(is_sat)

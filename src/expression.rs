@@ -14,6 +14,9 @@ impl<F: PrimeField> Expression<F> {
     }
 
     pub(crate) fn get(&self, wire: Wire) -> F {
+        if wire == Wire::one() {
+            return F::one();
+        }
         for (index, value) in self.coeffs.clone() {
             if index == wire {
                 return value;
