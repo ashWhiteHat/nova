@@ -31,4 +31,24 @@ mod tests {
         let is_sat = gadget.is_sat(assignments);
         assert!(is_sat)
     }
+
+    #[test]
+    fn mul_gate_test() {
+        let mut builder = Builder::<BlsScalar>::new();
+        let (a, b, c) = (builder.wire(), builder.wire(), builder.wire());
+        builder.mul_gate(a, b, c);
+        let gadget = builder.build();
+
+        let x = BlsScalar::one().double();
+        let y = BlsScalar::one().double().double();
+        let z = x * y;
+        let assignments = vec![
+            Assignment::new(a, x),
+            Assignment::new(b, y),
+            Assignment::new(c, z),
+            Assignment::default(),
+        ];
+        let is_sat = gadget.is_sat(assignments);
+        assert!(is_sat)
+    }
 }

@@ -7,7 +7,7 @@ use zkstd::common::PrimeField;
 
 pub struct Builder<F: PrimeField> {
     pointer: u64,
-    r1cs: Vec<Constraint<F>>,
+    pub(crate) r1cs: Vec<Constraint<F>>,
 }
 
 impl<F: PrimeField> Builder<F> {
@@ -24,12 +24,27 @@ impl<F: PrimeField> Builder<F> {
         Wire::new(pointer)
     }
 
-    pub fn equal_gate(&mut self, a: impl Into<Expression<F>>, b: impl Into<Expression<F>>) {
-        self.add_constraint(a.into(), F::one().into(), b.into())
+    pub fn mul_gate(
+        &mut self,
+        a: impl Into<Expression<F>>,
+        b: impl Into<Expression<F>>,
+        c: impl Into<Expression<F>>,
+    ) {
+        self.add_constraint(a, b, c)
     }
 
-    fn add_constraint(&mut self, a: Expression<F>, b: Expression<F>, c: Expression<F>) {
-        self.r1cs.push(Constraint::new(a, b, c))
+    pub fn equal_gate(&mut self, a: impl Into<Expression<F>>, b: impl Into<Expression<F>>) {
+        self.add_constraint(a, F::one(), b)
+    }
+
+    fn add_constraint(
+        &mut self,
+        a: impl Into<Expression<F>>,
+        b: impl Into<Expression<F>>,
+        c: impl Into<Expression<F>>,
+    ) {
+        self.r1cs
+            .push(Constraint::new(a.into(), b.into(), c.into()))
     }
 
     pub fn build(&self) -> Gadget<F> {
