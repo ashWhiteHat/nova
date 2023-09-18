@@ -36,16 +36,16 @@ impl<F: PrimeField> ConstraintSystem<F> {
 
     /// constrain a * b == c
     pub fn mul_constraint(&mut self, a: Wire, b: Wire, c: Wire) {
-        self.add_constraint(a, b, c)
+        self.enable_constraint(a, b, c)
     }
 
     /// constrain a == b
     pub fn equal_constraint(&mut self, a: Wire, b: Wire) {
-        self.add_constraint(a, F::one(), b)
+        self.enable_constraint(a, F::one(), b)
     }
 
     /// add constraint internally
-    fn add_constraint(
+    fn enable_constraint(
         &mut self,
         a: impl Into<Expression<F>>,
         b: impl Into<Expression<F>>,

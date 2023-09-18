@@ -13,7 +13,7 @@ mod tests {
     use zkstd::common::PrimeField;
 
     #[test]
-    fn equal_gate_test() {
+    fn equal_constraint_test() {
         let x = BlsScalar::one().double();
 
         let mut cs = ConstraintSystem::<BlsScalar>::new();
@@ -24,7 +24,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_gate_test() {
+    fn mul_constraint_test() {
         let x = BlsScalar::one().double();
         let y = BlsScalar::one().double().double();
         let z = x * y;
