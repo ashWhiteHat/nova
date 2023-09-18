@@ -1,5 +1,4 @@
 mod assignment;
-mod builder;
 mod constraint;
 mod constraint_system;
 mod expression;
@@ -7,23 +6,24 @@ mod gadget;
 mod wire;
 
 pub use assignment::Assignment;
-pub use builder::Builder;
+pub use constraint_system::ConstraintSystem;
 
 #[cfg(test)]
 mod tests {
-    use super::{Assignment, Builder};
+    use super::{Assignment, ConstraintSystem};
 
     use bls_12_381::Fr as BlsScalar;
     use zkstd::common::PrimeField;
 
     #[test]
     fn equal_gate_test() {
-        let mut builder = Builder::<BlsScalar>::new();
-        let (a, b) = (builder.wire(), builder.wire());
-        builder.equal_gate(a, b);
-        let gadget = builder.build();
-
         let x = BlsScalar::one().double();
+
+        let mut cs = ConstraintSystem::<BlsScalar>::new();
+        let (a, b) = (cs.public_wire(x), cs.public_wire(x));
+        cs.equal_constraint(a, b);
+        let gadget = cs.build();
+
         let assignments = vec![
             Assignment::new(a, x),
             Assignment::new(b, x),
@@ -35,14 +35,15 @@ mod tests {
 
     #[test]
     fn mul_gate_test() {
-        let mut builder = Builder::<BlsScalar>::new();
-        let (a, b, c) = (builder.wire(), builder.wire(), builder.wire());
-        builder.mul_gate(a, b, c);
-        let gadget = builder.build();
-
         let x = BlsScalar::one().double();
         let y = BlsScalar::one().double().double();
         let z = x * y;
+
+        let mut cs = ConstraintSystem::<BlsScalar>::new();
+        let (a, b, c) = (cs.public_wire(x), cs.public_wire(y), cs.public_wire(z));
+        cs.mul_constraint(a, b, c);
+        let gadget = cs.build();
+
         let assignments = vec![
             Assignment::new(a, x),
             Assignment::new(b, y),
