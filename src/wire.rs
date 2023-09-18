@@ -1,15 +1,17 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Wire {
+    /// wire for constant one, public input and output
     Instance(usize),
+    /// wire for private input and intermediate value
     Witness(usize),
 }
 
 impl Wire {
-    pub(crate) fn public(index: usize) -> Self {
+    pub(crate) fn instance(index: usize) -> Self {
         Self::Instance(index)
     }
 
-    pub(crate) fn private(index: usize) -> Self {
+    pub(crate) fn witness(index: usize) -> Self {
         Self::Witness(index)
     }
 
