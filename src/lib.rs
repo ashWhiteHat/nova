@@ -1,6 +1,7 @@
 mod assignment;
 mod builder;
 mod constraint;
+mod constraint_system;
 mod expression;
 mod gadget;
 mod wire;
