@@ -54,23 +54,25 @@ mod tests {
 
     use bls_12_381::Fr as Scalar;
 
-    fn index_value_to_element<F: PrimeField>(wire: Wire, value: F) -> Element<F> {
-        Element(wire, value)
+    fn array_to_witnessess<F: PrimeField>(witnesses: Vec<u64>) -> Vec<F> {
+        witnesses
+            .iter()
+            .map(|witness| F::from(*witness))
+            .collect::<Vec<_>>()
     }
 
     fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>) -> SparseMatrix<F> {
-        let mut sparse_matrix = vec![];
-        for elements in value {
-            let mut rows = vec![];
-            for (index, element) in elements.iter().enumerate() {
-                if !(*element == 0) {
-                    let instance = Wire::instance(index);
-                    let value = F::from(*element).into();
-                    rows.push(index_value_to_element(instance, value))
-                }
-            }
-            sparse_matrix.push(rows)
-        }
+        let sparse_matrix = value
+            .iter()
+            .map(|elements| {
+                elements
+                    .iter()
+                    .enumerate()
+                    .map(|(index, element)| Element(Wire::instance(index), F::from(*element)))
+                    .filter(|element| element.1 != F::zero())
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
         SparseMatrix(sparse_matrix)
     }
 
@@ -85,11 +87,7 @@ mod tests {
         })
     }
 
-    fn is_satisfy<F: PrimeField>(r1cs: R1cs<F>, witnesses: Vec<u64>) -> bool {
-        let witnesses = witnesses
-            .iter()
-            .map(|witness| F::from(*witness))
-            .collect::<Vec<_>>();
+    fn is_satisfy<F: PrimeField>(r1cs: R1cs<F>, witnesses: Vec<F>) -> bool {
         let R1cs { m, a, b, c } = r1cs;
         (0..m).all(|i| {
             let a_prod = dot_product(&a.0[i], &witnesses);
@@ -123,7 +121,7 @@ mod tests {
             vec![0, 0, 1, 0, 0, 0],
         ]);
         let r1cs = R1cs { m, a, b, c };
-        let z = vec![1, 3, 35, 9, 27, 30];
+        let z = array_to_witnessess(vec![1, 3, 35, 9, 27, 30]);
         assert!(is_satisfy(r1cs, z))
     }
 }
