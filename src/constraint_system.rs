@@ -55,6 +55,24 @@ impl<F: PrimeField> ConstraintSystem<F> {
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        true
+        let R1cs { m, a, b, c } = &self.r1cs;
+        (0..*m).all(|i| {
+            let a_prod = self.dot_product(&a.0[i]);
+            let b_prod = self.dot_product(&b.0[i]);
+            let c_prod = self.dot_product(&c.0[i]);
+            a_prod * b_prod == c_prod
+        })
+    }
+
+    // dot product for each gate
+    fn dot_product(&self, elements: &Vec<Element<F>>) -> F {
+        elements.iter().fold(F::zero(), |sum, element| {
+            let (wire, value) = (element.0, element.1);
+            let coeff = match wire {
+                Wire::Instance(index) => self.instances[index],
+                Wire::Witness(index) => self.witnessess[index],
+            };
+            sum + coeff * value
+        })
     }
 }

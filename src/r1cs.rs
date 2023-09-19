@@ -5,12 +5,23 @@ use zkstd::common::PrimeField;
 /// https://eprint.iacr.org/2021/370.pdf
 /// 4.1 Definition 10 R1CS
 ///  (A · Z) ◦ (B · Z) = C · Z
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub(crate) struct R1cs<F: PrimeField> {
-    m: usize,
-    a: SparseMatrix<F>,
-    b: SparseMatrix<F>,
-    c: SparseMatrix<F>,
+    pub(crate) m: usize,
+    pub(crate) a: SparseMatrix<F>,
+    pub(crate) b: SparseMatrix<F>,
+    pub(crate) c: SparseMatrix<F>,
+}
+
+impl<F: PrimeField> Default for R1cs<F> {
+    fn default() -> Self {
+        Self {
+            m: 0,
+            a: SparseMatrix(vec![vec![]]),
+            b: SparseMatrix(vec![vec![]]),
+            c: SparseMatrix(vec![vec![]]),
+        }
+    }
 }
 
 impl<F: PrimeField> R1cs<F> {
@@ -30,11 +41,22 @@ impl<F: PrimeField> R1cs<F> {
     }
 }
 
+fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: &Vec<F>) -> F {
+    elements.iter().fold(F::zero(), |sum, element| {
+        let (wire, value) = (element.0, element.1);
+        let index = match wire {
+            Wire::Instance(index) => index,
+            Wire::Witness(index) => index,
+        };
+        sum + witnesses[index] * value
+    })
+}
+
 #[derive(Debug, Default)]
-pub(crate) struct SparseMatrix<F: PrimeField>(Vec<Vec<Element<F>>>);
+pub(crate) struct SparseMatrix<F: PrimeField>(pub(crate) Vec<Vec<Element<F>>>);
 
 #[derive(Debug)]
-pub struct Element<F: PrimeField>(Wire, F);
+pub struct Element<F: PrimeField>(pub(crate) Wire, pub(crate) F);
 
 impl<F: PrimeField> From<Wire> for Element<F> {
     fn from(value: Wire) -> Self {
