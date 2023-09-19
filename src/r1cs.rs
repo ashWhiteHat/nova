@@ -33,22 +33,6 @@ impl<F: PrimeField> R1cs<F> {
 #[derive(Debug, Default)]
 pub(crate) struct SparseMatrix<F: PrimeField>(Vec<Vec<Element<F>>>);
 
-impl<F: PrimeField> SparseMatrix<F> {
-    pub(crate) fn product(&self, witnesses: &Vec<F>) -> F {
-        self.0.iter().fold(F::zero(), |mut sum, elements| {
-            for element in elements {
-                let (wire, value) = (element.0, element.1);
-                let index = match wire {
-                    Wire::Instance(index) => index,
-                    Wire::Witness(index) => index,
-                };
-                sum += witnesses[index] * value;
-            }
-            sum
-        })
-    }
-}
-
 #[derive(Debug)]
 pub struct Element<F: PrimeField>(Wire, F);
 
@@ -90,42 +74,29 @@ mod tests {
         SparseMatrix(sparse_matrix)
     }
 
+    fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: &Vec<F>) -> F {
+        elements.iter().fold(F::zero(), |sum, element| {
+            let (wire, value) = (element.0, element.1);
+            let index = match wire {
+                Wire::Instance(index) => index,
+                Wire::Witness(index) => index,
+            };
+            sum + witnesses[index] * value
+        })
+    }
+
     fn is_satisfy<F: PrimeField>(r1cs: R1cs<F>, witnesses: Vec<u64>) -> bool {
         let witnesses = witnesses
             .iter()
             .map(|witness| F::from(*witness))
             .collect::<Vec<_>>();
         let R1cs { m, a, b, c } = r1cs;
-        for i in 0..m {
-            let a_prod = a.0[i].iter().fold(F::zero(), |sum, element| {
-                let (wire, value) = (element.0, element.1);
-                let index = match wire {
-                    Wire::Instance(index) => index,
-                    Wire::Witness(index) => index,
-                };
-                sum + witnesses[index] * value
-            });
-            let b_prod = b.0[i].iter().fold(F::zero(), |sum, element| {
-                let (wire, value) = (element.0, element.1);
-                let index = match wire {
-                    Wire::Instance(index) => index,
-                    Wire::Witness(index) => index,
-                };
-                sum + witnesses[index] * value
-            });
-            let c_prod = c.0[i].iter().fold(F::zero(), |sum, element| {
-                let (wire, value) = (element.0, element.1);
-                let index = match wire {
-                    Wire::Instance(index) => index,
-                    Wire::Witness(index) => index,
-                };
-                sum + witnesses[index] * value
-            });
-            if a_prod * b_prod != c_prod {
-                return false;
-            }
-        }
-        return true;
+        (0..m).all(|i| {
+            let a_prod = dot_product(&a.0[i], &witnesses);
+            let b_prod = dot_product(&b.0[i], &witnesses);
+            let c_prod = dot_product(&c.0[i], &witnesses);
+            a_prod * b_prod == c_prod
+        })
     }
 
     #[test]
