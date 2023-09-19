@@ -1,6 +1,5 @@
 mod constraint;
 mod constraint_system;
-mod expression;
 mod wire;
 
 pub use constraint_system::ConstraintSystem;

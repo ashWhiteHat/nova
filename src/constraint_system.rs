@@ -1,11 +1,10 @@
-use crate::constraint::Constraint;
-use crate::expression::Expression;
+use crate::constraint::{Constraint, Expression, R1cs};
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
 
 pub struct ConstraintSystem<F: PrimeField> {
-    r1cs: Vec<Constraint<F>>,
+    r1cs: R1cs<F>,
     instances: Vec<F>,
     witnessess: Vec<F>,
 }
@@ -14,7 +13,7 @@ impl<F: PrimeField> ConstraintSystem<F> {
     /// init constraint system with first instance one
     pub fn new() -> Self {
         Self {
-            r1cs: vec![],
+            r1cs: R1cs::default(),
             instances: vec![F::one()],
             witnessess: vec![],
         }
@@ -52,12 +51,13 @@ impl<F: PrimeField> ConstraintSystem<F> {
         c: impl Into<Expression<F>>,
     ) {
         self.r1cs
+            .0
             .push(Constraint::new(a.into(), b.into(), c.into()))
     }
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        self.r1cs.iter().all(
+        self.r1cs.0.iter().all(
             |Constraint {
                  left,
                  right,
@@ -72,15 +72,12 @@ impl<F: PrimeField> ConstraintSystem<F> {
     }
 
     fn dot_product(&self, expression: &Expression<F>) -> F {
-        expression
-            .coeffs
-            .iter()
-            .fold(F::zero(), |sum, (wire, coeff)| {
-                let value = match *wire {
-                    Wire::Instance(index) => self.instances[index],
-                    Wire::Witness(index) => self.witnessess[index],
-                };
-                sum + *coeff * value
-            })
+        expression.0.iter().fold(F::zero(), |sum, (wire, coeff)| {
+            let value = match *wire {
+                Wire::Instance(index) => self.instances[index],
+                Wire::Witness(index) => self.witnessess[index],
+            };
+            sum + *coeff * value
+        })
     }
 }
