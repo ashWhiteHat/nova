@@ -1,5 +1,5 @@
-mod constraint;
 mod constraint_system;
+mod r1cs;
 mod wire;
 
 pub use constraint_system::ConstraintSystem;

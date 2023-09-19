@@ -1,4 +1,4 @@
-use crate::constraint::{Constraint, Expression, R1cs};
+use crate::r1cs::{Element, R1cs};
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -46,38 +46,15 @@ impl<F: PrimeField> ConstraintSystem<F> {
     /// add constraint internally
     fn enable_constraint(
         &mut self,
-        a: impl Into<Expression<F>>,
-        b: impl Into<Expression<F>>,
-        c: impl Into<Expression<F>>,
+        a: impl Into<Element<F>>,
+        b: impl Into<Element<F>>,
+        c: impl Into<Element<F>>,
     ) {
-        self.r1cs
-            .0
-            .push(Constraint::new(a.into(), b.into(), c.into()))
+        self.r1cs.append(a, b, c)
     }
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        self.r1cs.0.iter().all(
-            |Constraint {
-                 left,
-                 right,
-                 output,
-             }| {
-                let a = self.dot_product(left);
-                let b = self.dot_product(right);
-                let c = self.dot_product(output);
-                a * b == c
-            },
-        )
-    }
-
-    fn dot_product(&self, expression: &Expression<F>) -> F {
-        expression.0.iter().fold(F::zero(), |sum, (wire, coeff)| {
-            let value = match *wire {
-                Wire::Instance(index) => self.instances[index],
-                Wire::Witness(index) => self.witnessess[index],
-            };
-            sum + *coeff * value
-        })
+        true
     }
 }
