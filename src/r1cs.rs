@@ -91,36 +91,65 @@ mod tests {
     }
 
     fn is_satisfy<F: PrimeField>(r1cs: R1cs<F>, witnesses: Vec<u64>) -> bool {
-        let witnesses = witnesses.iter().map(|witness| F::from(*witness)).collect();
-        let a = r1cs.a.product(&witnesses);
-        let b = r1cs.b.product(&witnesses);
-        let c = r1cs.c.product(&witnesses);
-        println!("a: {:?} b: {:?} c: {:?}", a, b, c);
-        a * b == c
+        let witnesses = witnesses
+            .iter()
+            .map(|witness| F::from(*witness))
+            .collect::<Vec<_>>();
+        let R1cs { m, a, b, c } = r1cs;
+        for i in 0..m {
+            let a_prod = a.0[i].iter().fold(F::zero(), |sum, element| {
+                let (wire, value) = (element.0, element.1);
+                let index = match wire {
+                    Wire::Instance(index) => index,
+                    Wire::Witness(index) => index,
+                };
+                sum + witnesses[index] * value
+            });
+            let b_prod = b.0[i].iter().fold(F::zero(), |sum, element| {
+                let (wire, value) = (element.0, element.1);
+                let index = match wire {
+                    Wire::Instance(index) => index,
+                    Wire::Witness(index) => index,
+                };
+                sum + witnesses[index] * value
+            });
+            let c_prod = c.0[i].iter().fold(F::zero(), |sum, element| {
+                let (wire, value) = (element.0, element.1);
+                let index = match wire {
+                    Wire::Instance(index) => index,
+                    Wire::Witness(index) => index,
+                };
+                sum + witnesses[index] * value
+            });
+            if a_prod * b_prod != c_prod {
+                return false;
+            }
+        }
+        return true;
     }
 
     #[test]
     fn r1cs_test() {
         // R1CS for: x^3 + x + 5 = y
         // https://www.vitalik.ca/general/2016/12/10/qap.html
-        let m = 3;
+        let m = 4;
         let a = dense_to_sparse::<Scalar>(vec![
             vec![0, 1, 0, 0, 0, 0],
-            // vec![0, 0, 0, 1, 0, 0],
-            // vec![0, 1, 0, 0, 1, 0],
-            // vec![5, 0, 0, 0, 0, 1],
+            vec![0, 0, 0, 1, 0, 0],
+            vec![0, 1, 0, 0, 1, 0],
+            vec![5, 0, 0, 0, 0, 1],
         ]);
         let b = dense_to_sparse::<Scalar>(vec![
             vec![0, 1, 0, 0, 0, 0],
-            // vec![0, 1, 0, 0, 0, 0],
-            // vec![1, 0, 0, 0, 0, 0],
-            // vec![1, 0, 0, 0, 0, 0],
+            vec![0, 1, 0, 0, 0, 0],
+            vec![1, 0, 0, 0, 0, 0],
+            vec![1, 0, 0, 0, 0, 0],
         ]);
         let c = dense_to_sparse::<Scalar>(vec![
             vec![0, 0, 0, 1, 0, 0],
-            // vec![0, 0, 0, 0, 1, 0],
-            // vec![0, 0, 0, 0, 0, 1],
-            // vec![0, 0, 1, 0, 0, 0],
+            vec![0, 0, 0, 0, 1, 0],
+            vec![0, 0, 0, 0, 0, 1],
+            vec![0, 0, 1, 0, 0, 0],
         ]);
         let r1cs = R1cs { m, a, b, c };
         let z = vec![1, 3, 35, 9, 27, 30];
