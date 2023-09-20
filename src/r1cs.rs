@@ -68,52 +68,10 @@ impl<F: PrimeField> From<F> for Element<F> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Element, PrimeField, R1cs, SparseMatrix, Wire};
+    use super::R1cs;
+    use crate::tests::{array_to_witnessess, dense_to_sparse, is_satisfy};
 
     use bls_12_381::Fr as Scalar;
-
-    fn array_to_witnessess<F: PrimeField>(witnesses: Vec<u64>) -> Vec<F> {
-        witnesses
-            .iter()
-            .map(|witness| F::from(*witness))
-            .collect::<Vec<_>>()
-    }
-
-    fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>) -> SparseMatrix<F> {
-        let sparse_matrix = value
-            .iter()
-            .map(|elements| {
-                elements
-                    .iter()
-                    .enumerate()
-                    .map(|(index, element)| Element(Wire::instance(index), F::from(*element)))
-                    .filter(|element| element.1 != F::zero())
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>();
-        SparseMatrix(sparse_matrix)
-    }
-
-    fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: &Vec<F>) -> F {
-        elements.iter().fold(F::zero(), |sum, element| {
-            let (wire, value) = (element.0, element.1);
-            let index = match wire {
-                Wire::Instance(index) => index,
-                Wire::Witness(index) => index,
-            };
-            sum + witnesses[index] * value
-        })
-    }
-
-    fn is_satisfy<F: PrimeField>(r1cs: R1cs<F>, witnesses: Vec<F>) -> bool {
-        let R1cs { m, a, b, c } = r1cs;
-        (0..m).all(|i| {
-            let a_prod = dot_product(&a.0[i], &witnesses);
-            let b_prod = dot_product(&b.0[i], &witnesses);
-            let c_prod = dot_product(&c.0[i], &witnesses);
-            a_prod * b_prod == c_prod
-        })
-    }
 
     #[test]
     fn r1cs_test() {
@@ -140,6 +98,6 @@ mod tests {
         ]);
         let r1cs = R1cs { m, a, b, c };
         let z = array_to_witnessess(vec![1, 3, 35, 9, 27, 30]);
-        assert!(is_satisfy(r1cs, z))
+        assert!(is_satisfy(&r1cs, z))
     }
 }
