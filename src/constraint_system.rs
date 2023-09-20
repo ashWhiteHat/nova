@@ -3,6 +3,7 @@ use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
 
+#[derive(Debug)]
 pub struct ConstraintSystem<F: PrimeField> {
     r1cs: R1cs<F>,
     instances: Vec<F>,
@@ -33,6 +34,12 @@ impl<F: PrimeField> ConstraintSystem<F> {
         Wire::witness(index)
     }
 
+    /// constrain a + b == c
+    pub fn add_constraint(&mut self, a: Wire, b: Wire, c: Wire) {
+        self.r1cs.append_a(a);
+        self.enable_constraint(b, F::one(), c)
+    }
+
     /// constrain a * b == c
     pub fn mul_constraint(&mut self, a: Wire, b: Wire, c: Wire) {
         self.enable_constraint(a, b, c)
@@ -50,7 +57,8 @@ impl<F: PrimeField> ConstraintSystem<F> {
         b: impl Into<Element<F>>,
         c: impl Into<Element<F>>,
     ) {
-        self.r1cs.append(a, b, c)
+        self.r1cs.append(a, b, c);
+        self.r1cs.increment()
     }
 
     /// check whether constraints satisfy

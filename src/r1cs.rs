@@ -36,20 +36,16 @@ impl<F: PrimeField> R1cs<F> {
         self.c.0[self.m].push(c.into());
     }
 
+    pub(crate) fn append_a(&mut self, a: impl Into<Element<F>>) {
+        self.a.0[self.m].push(a.into())
+    }
+
     pub(crate) fn increment(&mut self) {
+        self.a.0.push(vec![]);
+        self.b.0.push(vec![]);
+        self.c.0.push(vec![]);
         self.m += 1
     }
-}
-
-fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: &Vec<F>) -> F {
-    elements.iter().fold(F::zero(), |sum, element| {
-        let (wire, value) = (element.0, element.1);
-        let index = match wire {
-            Wire::Instance(index) => index,
-            Wire::Witness(index) => index,
-        };
-        sum + witnesses[index] * value
-    })
 }
 
 #[derive(Debug, Default)]
