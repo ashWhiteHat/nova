@@ -1,4 +1,5 @@
 use crate::matrix::{Element, SparseMatrix};
+use crate::relaxed_r1cs::RelaxedR1CS;
 
 use zkstd::common::PrimeField;
 
@@ -54,6 +55,19 @@ impl<F: PrimeField> R1cs<F> {
     pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> (Vec<F>, Vec<F>) {
         let offset = self.l + 1;
         (witnesses[1..offset].to_vec(), witnesses[offset..].to_vec())
+    }
+
+    pub(crate) fn relax(self) -> RelaxedR1CS<F> {
+        let Self { m, l, a, b, c } = self;
+        let e = vec![F::zero(); m];
+        RelaxedR1CS {
+            e,
+            u: F::one(),
+            l,
+            a,
+            b,
+            c,
+        }
     }
 }
 

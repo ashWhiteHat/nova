@@ -27,6 +27,10 @@ $$
 - $x$: public inputs and outputs
 - $Z$: $(W, x, u)$
 
+## [R1CS to Relaxed R1CS](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,370)
+
+The R1CS instance can be expressed as a relaxed R1CS instance by $u = 1$ and $E = 0$.
+
 ## [Commitment](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,850)
 
 $$
