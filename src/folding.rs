@@ -19,15 +19,6 @@ mod tests {
     use bls_12_381::Fr as Scalar;
     use rand_core::OsRng;
 
-    // return instances and witnesses
-    fn split_witness<F: PrimeField>(witnesses: Vec<F>) -> (Vec<F>, Vec<F>) {
-        // public inputs size
-        let l = 1;
-        // first one const witness offset
-        let offset = l + 1;
-        (witnesses[1..offset].to_vec(), witnesses[offset..].to_vec())
-    }
-
     // mocked Fiat-Shamir transform
     // r ← H(x1, x2, T)
     fn challenge_r<F: PrimeField>() -> F {
@@ -39,8 +30,8 @@ mod tests {
         let r1cs: R1cs<Scalar> = example_r1cs_instance();
         let z1 = example_r1cs_witness(3);
         let z2 = example_r1cs_witness(4);
-        let (x1, w1) = split_witness(z1);
-        let (x2, w2) = split_witness(z2);
+        let (x1, w1) = r1cs.instance_and_witness(z1);
+        let (x2, w2) = r1cs.instance_and_witness(z2);
         let r: Scalar = challenge_r();
 
         folding(r1cs, x1, x2, w1, w2);

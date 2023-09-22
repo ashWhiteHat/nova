@@ -1,5 +1,3 @@
-use crate::transcript::Transcript;
-
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
 
 pub(crate) struct Proof<C: CurveAffine> {

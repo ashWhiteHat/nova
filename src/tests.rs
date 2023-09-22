@@ -1,4 +1,5 @@
-use crate::r1cs::{Element, R1cs, SparseMatrix};
+use crate::matrix::{Element, SparseMatrix};
+use crate::r1cs::R1cs;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -37,7 +38,7 @@ pub(crate) fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: 
 }
 
 pub(crate) fn is_satisfy<F: PrimeField>(r1cs: &R1cs<F>, witnesses: Vec<F>) -> bool {
-    let R1cs { m, a, b, c } = r1cs;
+    let R1cs { m, l: _, a, b, c } = r1cs;
     (0..*m).all(|i| {
         let a_prod = dot_product(&a.0[i], &witnesses);
         let b_prod = dot_product(&b.0[i], &witnesses);
@@ -48,6 +49,7 @@ pub(crate) fn is_satisfy<F: PrimeField>(r1cs: &R1cs<F>, witnesses: Vec<F>) -> bo
 
 pub(crate) fn example_r1cs_instance<F: PrimeField>() -> R1cs<F> {
     let m = 4;
+    let l = 1;
     let a = dense_to_sparse(vec![
         vec![0, 1, 0, 0, 0, 0],
         vec![0, 0, 0, 1, 0, 0],
@@ -66,7 +68,7 @@ pub(crate) fn example_r1cs_instance<F: PrimeField>() -> R1cs<F> {
         vec![0, 0, 0, 0, 0, 1],
         vec![0, 0, 1, 0, 0, 0],
     ]);
-    R1cs { m, a, b, c }
+    R1cs { m, l, a, b, c }
 }
 
 pub(crate) fn example_r1cs_witness<F: PrimeField>(input: u64) -> Vec<F> {

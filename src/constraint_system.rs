@@ -1,4 +1,5 @@
-use crate::r1cs::{Element, R1cs};
+use crate::matrix::Element;
+use crate::r1cs::R1cs;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -63,7 +64,7 @@ impl<F: PrimeField> ConstraintSystem<F> {
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        let R1cs { m, a, b, c } = &self.r1cs;
+        let R1cs { m, l: _, a, b, c } = &self.r1cs;
         (0..*m).all(|i| {
             let a_prod = self.dot_product(&a.0[i]);
             let b_prod = self.dot_product(&b.0[i]);

@@ -1,7 +1,9 @@
 mod commitment;
 mod constraint_system;
 mod folding;
+mod matrix;
 mod r1cs;
+mod relaxed_r1cs;
 mod transcript;
 mod wire;
 
