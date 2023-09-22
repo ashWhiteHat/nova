@@ -41,7 +41,7 @@ mod tests {
         let z2 = example_r1cs_witness(4);
         let (x1, w1) = split_witness(z1);
         let (x2, w2) = split_witness(z2);
-        let r = challenge_r();
+        let r: Scalar = challenge_r();
 
         folding(r1cs, x1, x2, w1, w2);
     }

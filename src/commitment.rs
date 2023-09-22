@@ -5,7 +5,7 @@ use zkstd::common::{CurveAffine, CurveGroup, RngCore};
 pub(crate) struct Proof<C: CurveAffine> {
     r: C,
     u: Vec<C::Scalar>,
-    r_u: C::Scalar
+    r_u: C::Scalar,
 }
 
 pub(crate) struct CommitmentScheme<C: CurveAffine> {
@@ -28,9 +28,5 @@ impl<C: CurveAffine> CommitmentScheme<C> {
                 .zip(self.domain.iter())
                 .fold(C::Extended::ADDITIVE_IDENTITY, |sum, (v, e)| sum + *e * *v))
         .into()
-    }
-
-    pub(crate) fn prove(&self, transcript: impl Transcript<C>) -> Proof<C> {
-        
     }
 }

@@ -16,6 +16,17 @@ $$
 - $W$: witness
 - $Z$: $(W, x, 1)$
 
+## [Relaxed R1CS](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,250)
+
+$$
+(A · Z) ◦ (B · Z) = u · (C · Z) + E
+$$
+
+- $E$: error vector
+- $u$: scalar
+- $x$: public inputs and outputs
+- $Z$: $(W, x, u)$
+
 ## [Commitment](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,850)
 
 $$
@@ -25,7 +36,9 @@ $$
 - $pp_W$: commitment vectors for $W$ size $m$
 - $pp_E$: commitment vectors for $E$ size $m - l - 1$
 - $(\overline E, u, \overline W, x)$: committed relaxed R1CS instance
-- $u$: public inputs
-- $x$: outputs
+- $u$: scalar
+- $x$: public inputs and outputs
 - $\overline E$: $Com(pp_E, E, r_E)$
 - $\overline W$: $Com(pp_W, W, r_W)$
+
+## [Folding Scheme](https://eprint.iacr.org/2021/370.pdf#page=15&zoom=100,100,300)
