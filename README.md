@@ -11,7 +11,7 @@ $$
 $$
 
 - $l$: instance length
-- $m - l - 1$: witness length.
+- $m - l - 1$: witness length
 - $x$: instance
 - $W$: witness
 - $Z$: $(W, x, 1)$
@@ -33,10 +33,6 @@ The R1CS instance can be expressed as a relaxed R1CS instance by $u = 1$ and $E 
 
 ## [Commitment](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,850)
 
-$$
-(\overline E, u, \overline W, x)
-$$
-
 - $pp_W$: commitment vectors for $W$ size $m$
 - $pp_E$: commitment vectors for $E$ size $m - l - 1$
 - $(\overline E, u, \overline W, x)$: committed relaxed R1CS instance
@@ -44,5 +40,23 @@ $$
 - $x$: public inputs and outputs
 - $\overline E$: $Com(pp_E, E, r_E)$
 - $\overline W$: $Com(pp_W, W, r_W)$
+
+## [Committed Relaxed R1CS](https://eprint.iacr.org/2021/370.pdf#page=15&zoom=100,100,210)
+
+$$
+(\overline E, u, \overline W, x)
+$$
+
+- $E$: error vector (0 when the R1CS is initalized)
+- $u$: scalar (1 when the R1CS is initalized)
+- $W$: witness
+- $x$: instance
+
+$(\overline E, u, \overline W, x)$ is satisfied by a witness $(E, r_E, W, r_W)$
+
+if
+- $\overline E = Com(pp_E, E, r_E)$
+- $\overline W = Com(pp_W, W, r_W)$
+- $(A · Z) ◦ (B · Z) = u · (C · Z) + E$
 
 ## [Folding Scheme](https://eprint.iacr.org/2021/370.pdf#page=15&zoom=100,100,300)
