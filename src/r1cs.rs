@@ -59,9 +59,8 @@ impl<F: PrimeField> R1cs<F> {
 
     pub(crate) fn relax(self) -> RelaxedR1CS<F> {
         let Self { m, l, a, b, c } = self;
-        let e = vec![F::zero(); m];
         RelaxedR1CS {
-            e,
+            e: vec![F::zero(); m],
             u: F::one(),
             l,
             a,

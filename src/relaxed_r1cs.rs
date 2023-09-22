@@ -1,6 +1,6 @@
 use crate::matrix::SparseMatrix;
 
-use zkstd::common::PrimeField;
+use zkstd::common::{CurveAffine, PrimeField};
 
 pub(crate) struct RelaxedR1CS<F: PrimeField> {
     /// error vectors
@@ -12,4 +12,11 @@ pub(crate) struct RelaxedR1CS<F: PrimeField> {
     pub(crate) a: SparseMatrix<F>,
     pub(crate) b: SparseMatrix<F>,
     pub(crate) c: SparseMatrix<F>,
+}
+
+pub(crate) struct CommittedRelaxedR1CS<C: CurveAffine> {
+    pub(crate) overline_e: C,
+    pub(crate) u: C::Scalar,
+    pub(crate) overline_w: C,
+    pub(crate) x: Vec<C::Scalar>,
 }
