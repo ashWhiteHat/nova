@@ -7,7 +7,7 @@ use zkstd::common::PrimeField;
 /// 4.1 Definition 10 R1CS
 ///  (A · Z) ◦ (B · Z) = C · Z
 #[derive(Clone, Debug)]
-pub(crate) struct R1cs<F: PrimeField> {
+pub struct R1cs<F: PrimeField> {
     /// matrix length
     pub(crate) m: usize,
     /// instance length

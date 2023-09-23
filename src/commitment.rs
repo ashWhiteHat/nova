@@ -8,7 +8,7 @@ pub(crate) struct Proof<C: CurveAffine> {
     r_u: C::Scalar,
 }
 
-pub(crate) struct CommitmentScheme<C: CurveAffine> {
+pub struct CommitmentScheme<C: CurveAffine> {
     h: C,
     domain: Vec<C>,
 }

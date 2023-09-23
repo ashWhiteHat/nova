@@ -11,3 +11,4 @@ mod wire;
 mod tests;
 
 pub use constraint_system::ConstraintSystem;
+pub use folding::FoldingScheme;

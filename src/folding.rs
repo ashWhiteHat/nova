@@ -4,18 +4,18 @@ use crate::relaxed_r1cs::CommittedRelaxedR1CS;
 
 use zkstd::common::CurveAffine;
 
-pub(crate) struct FoldingScheme<C: CurveAffine> {
-    r1cs: R1cs<C::Scalar>,
-    x1: Vec<C::Scalar>,
-    x2: Vec<C::Scalar>,
-    w1: Vec<C::Scalar>,
-    w2: Vec<C::Scalar>,
-    cs: CommitmentScheme<C>,
-    r: C::Scalar,
+pub struct FoldingScheme<C: CurveAffine> {
+    pub r1cs: R1cs<C::Scalar>,
+    pub x1: Vec<C::Scalar>,
+    pub x2: Vec<C::Scalar>,
+    pub w1: Vec<C::Scalar>,
+    pub w2: Vec<C::Scalar>,
+    pub cs: CommitmentScheme<C>,
+    pub r: C::Scalar,
 }
 
 impl<C: CurveAffine> FoldingScheme<C> {
-    pub(crate) fn new(
+    pub fn new(
         r1cs: R1cs<C::Scalar>,
         x1: Vec<C::Scalar>,
         x2: Vec<C::Scalar>,
@@ -35,7 +35,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
         }
     }
 
-    pub(crate) fn folding(&self) {
+    pub fn folding(&self) {
         // convert r1cs instance to relaxed r1cs instance
         let relaxed_r1cs = self.r1cs.relax();
         // commit relaxed r1cs instance
@@ -49,7 +49,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
 
     fn prove() {}
 
-    fn compute_cross_term(&self) {
+    fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) {
         let R1cs { m, l, a, b, c } = self.r1cs.clone();
         let az2 = a.prod(m, &self.x2, &self.w2);
         let bz1 = b.prod(m, &self.x1, &self.w1);
@@ -57,6 +57,9 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let bz2 = b.prod(m, &self.x2, &self.w2);
         let cz2 = c.prod(m, &self.x2, &self.w2);
         let cz1 = c.prod(m, &self.x1, &self.w1);
+
+        let c1cz2 = cz2 * c1;
+        let c2cz1 = cz1 * c1;
     }
 }
 
