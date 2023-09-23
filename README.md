@@ -31,6 +31,10 @@ $$
 
 The R1CS instance can be expressed as a relaxed R1CS instance by $u = 1$ and $E = 0$.
 
+$$
+(A · Z) ◦ (B · Z) = 1 · (C · Z) + 0
+$$
+
 ## [Commitment](https://eprint.iacr.org/2021/370.pdf#page=14&zoom=100,100,850)
 
 - $pp_W$: commitment vectors for $W$ size $m$

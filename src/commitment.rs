@@ -33,15 +33,15 @@ impl<C: CurveAffine> CommitmentScheme<C> {
     pub(crate) fn commit_relaxed_r1cs(
         &self,
         relaxed_r1cs: &RelaxedR1CS<C::Scalar>,
-        w: Vec<C::Scalar>,
-        x: Vec<C::Scalar>,
+        w: &Vec<C::Scalar>,
+        x: &Vec<C::Scalar>,
         cs: &CommitmentScheme<C>,
     ) -> CommittedRelaxedR1CS<C> {
         CommittedRelaxedR1CS {
             overline_e: cs.commit(&relaxed_r1cs.e, relaxed_r1cs.u),
             u: relaxed_r1cs.u,
             overline_w: cs.commit(&w, relaxed_r1cs.u),
-            x,
+            x: x.to_vec(),
         }
     }
 }

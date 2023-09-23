@@ -6,7 +6,7 @@ use zkstd::common::PrimeField;
 /// https://eprint.iacr.org/2021/370.pdf
 /// 4.1 Definition 10 R1CS
 ///  (A · Z) ◦ (B · Z) = C · Z
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct R1cs<F: PrimeField> {
     /// matrix length
     pub(crate) m: usize,
@@ -57,8 +57,8 @@ impl<F: PrimeField> R1cs<F> {
         (witnesses[1..offset].to_vec(), witnesses[offset..].to_vec())
     }
 
-    pub(crate) fn relax(self) -> RelaxedR1CS<F> {
-        let Self { m, l, a, b, c } = self;
+    pub(crate) fn relax(&self) -> RelaxedR1CS<F> {
+        let Self { m, l, a, b, c } = self.clone();
         RelaxedR1CS {
             e: vec![F::zero(); m],
             u: F::one(),

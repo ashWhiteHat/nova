@@ -1,19 +1,50 @@
 use crate::commitment::CommitmentScheme;
 use crate::r1cs::R1cs;
+use crate::relaxed_r1cs::CommittedRelaxedR1CS;
 
 use zkstd::common::CurveAffine;
 
-pub(crate) fn folding<C: CurveAffine>(
+pub(crate) struct FoldingScheme<C: CurveAffine> {
     r1cs: R1cs<C::Scalar>,
     x1: Vec<C::Scalar>,
     x2: Vec<C::Scalar>,
     w1: Vec<C::Scalar>,
     w2: Vec<C::Scalar>,
-    cs: &CommitmentScheme<C>,
-) {
-    let relaxed_r1cs = r1cs.relax();
-    let crr1 = cs.commit_relaxed_r1cs(&relaxed_r1cs, w1, x1, cs);
-    let crr2 = cs.commit_relaxed_r1cs(&relaxed_r1cs, w2, x2, cs);
+    cs: CommitmentScheme<C>,
+}
+
+impl<C: CurveAffine> FoldingScheme<C> {
+    pub(crate) fn new(
+        r1cs: R1cs<C::Scalar>,
+        x1: Vec<C::Scalar>,
+        x2: Vec<C::Scalar>,
+        w1: Vec<C::Scalar>,
+        w2: Vec<C::Scalar>,
+        cs: CommitmentScheme<C>,
+    ) -> Self {
+        Self {
+            r1cs,
+            x1,
+            x2,
+            w1,
+            w2,
+            cs,
+        }
+    }
+
+    pub(crate) fn folding(&self) {
+        // convert r1cs to relaxed r1cs
+        let relaxed_r1cs = self.r1cs.relax();
+        // commit relaxed r1cs
+        let crr1 = self
+            .cs
+            .commit_relaxed_r1cs(&relaxed_r1cs, &self.w1, &self.x1, &self.cs);
+        let crr2 = self
+            .cs
+            .commit_relaxed_r1cs(&relaxed_r1cs, &self.w2, &self.x2, &self.cs);
+    }
+
+    fn prove(r: C::Scalar, crr1: CommittedRelaxedR1CS<C>, crr2: CommittedRelaxedR1CS<C>) {}
 }
 
 #[cfg(test)]
@@ -42,6 +73,7 @@ mod tests {
         let n = r1cs.m.next_power_of_two() as u64;
         let cs: CommitmentScheme<Affine> = CommitmentScheme::new(n, OsRng);
 
-        folding(r1cs, x1, x2, w1, w2, &cs);
+        let folding_scheme = FoldingScheme::new(r1cs, x1, x2, w1, w2, cs);
+        folding_scheme.folding();
     }
 }
