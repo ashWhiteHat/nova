@@ -1,4 +1,5 @@
 use crate::commitment::CommitmentScheme;
+use crate::matrix::DenseVectors;
 use crate::r1cs::R1cs;
 use crate::relaxed_r1cs::CommittedRelaxedR1CS;
 
@@ -45,12 +46,19 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let crr2 = self
             .cs
             .commit_relaxed_r1cs(&relaxed_r1cs, &self.w2, &self.x2, &self.cs);
+        self.prove(crr1, crr2)
     }
 
-    fn prove() {}
+    fn prove(&self, crr1: CommittedRelaxedR1CS<C>, crr2: CommittedRelaxedR1CS<C>) {
+        // compute cross term
+        let t = self.compute_cross_term(crr1.u, crr2.u);
+    }
 
-    fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) {
-        let R1cs { m, l, a, b, c } = self.r1cs.clone();
+    /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
+    fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) -> DenseVectors<C::Scalar> {
+        let R1cs { m, l: _, a, b, c } = self.r1cs.clone();
+
+        // r1cs and z vectors dot product
         let az2 = a.prod(m, &self.x2, &self.w2);
         let bz1 = b.prod(m, &self.x1, &self.w1);
         let az1 = a.prod(m, &self.x1, &self.w1);
@@ -58,8 +66,16 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let cz2 = c.prod(m, &self.x2, &self.w2);
         let cz1 = c.prod(m, &self.x1, &self.w1);
 
+        // dense vectors multiplication a.k.a Hadamard product
+        let az2bz1 = az2 * bz1;
+        let az1bz2 = az1 * bz2;
+
+        // dense vectors and random scalar multiplication
         let c1cz2 = cz2 * c1;
-        let c2cz1 = cz1 * c1;
+        let c2cz1 = cz1 * c2;
+
+        // final addition and subtraction
+        az2bz1 + az1bz2 - c1cz2 - c2cz1
     }
 }
 

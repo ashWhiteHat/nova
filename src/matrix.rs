@@ -2,8 +2,7 @@ mod element;
 
 use crate::wire::Wire;
 
-use element::DenseVectors;
-pub(crate) use element::Element;
+pub(crate) use element::{DenseVectors, Element};
 use zkstd::common::PrimeField;
 
 #[derive(Clone, Debug, Default)]
