@@ -11,6 +11,7 @@ pub(crate) struct FoldingScheme<C: CurveAffine> {
     w1: Vec<C::Scalar>,
     w2: Vec<C::Scalar>,
     cs: CommitmentScheme<C>,
+    r: C::Scalar,
 }
 
 impl<C: CurveAffine> FoldingScheme<C> {
@@ -21,6 +22,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
         w1: Vec<C::Scalar>,
         w2: Vec<C::Scalar>,
         cs: CommitmentScheme<C>,
+        r: C::Scalar,
     ) -> Self {
         Self {
             r1cs,
@@ -29,13 +31,14 @@ impl<C: CurveAffine> FoldingScheme<C> {
             w1,
             w2,
             cs,
+            r,
         }
     }
 
     pub(crate) fn folding(&self) {
-        // convert r1cs to relaxed r1cs
+        // convert r1cs instance to relaxed r1cs instance
         let relaxed_r1cs = self.r1cs.relax();
-        // commit relaxed r1cs
+        // commit relaxed r1cs instance
         let crr1 = self
             .cs
             .commit_relaxed_r1cs(&relaxed_r1cs, &self.w1, &self.x1, &self.cs);
@@ -44,7 +47,17 @@ impl<C: CurveAffine> FoldingScheme<C> {
             .commit_relaxed_r1cs(&relaxed_r1cs, &self.w2, &self.x2, &self.cs);
     }
 
-    fn prove(r: C::Scalar, crr1: CommittedRelaxedR1CS<C>, crr2: CommittedRelaxedR1CS<C>) {}
+    fn prove() {}
+
+    fn compute_cross_term(&self) {
+        let R1cs { m, l, a, b, c } = self.r1cs.clone();
+        let az2 = a.prod(m, &self.x2, &self.w2);
+        let bz1 = b.prod(m, &self.x1, &self.w1);
+        let az1 = a.prod(m, &self.x1, &self.w1);
+        let bz2 = b.prod(m, &self.x2, &self.w2);
+        let cz2 = c.prod(m, &self.x2, &self.w2);
+        let cz1 = c.prod(m, &self.x1, &self.w1);
+    }
 }
 
 #[cfg(test)]
@@ -73,7 +86,7 @@ mod tests {
         let n = r1cs.m.next_power_of_two() as u64;
         let cs: CommitmentScheme<Affine> = CommitmentScheme::new(n, OsRng);
 
-        let folding_scheme = FoldingScheme::new(r1cs, x1, x2, w1, w2, cs);
+        let folding_scheme = FoldingScheme::new(r1cs, x1, x2, w1, w2, cs, r);
         folding_scheme.folding();
     }
 }
