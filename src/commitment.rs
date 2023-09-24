@@ -1,3 +1,4 @@
+use crate::matrix::DenseVectors;
 use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
 
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
@@ -22,9 +23,10 @@ impl<C: CurveAffine> CommitmentScheme<C> {
         Self { h, domain }
     }
 
-    pub(crate) fn commit(&self, m: &Vec<C::Scalar>, r: C::Scalar) -> C {
+    pub(crate) fn commit(&self, m: &DenseVectors<C::Scalar>, r: C::Scalar) -> C {
         (self.h * r
-            + m.iter()
+            + m.0
+                .iter()
                 .zip(self.domain.iter())
                 .fold(C::Extended::ADDITIVE_IDENTITY, |sum, (v, e)| sum + *e * *v))
         .into()
@@ -39,7 +41,7 @@ impl<C: CurveAffine> CommitmentScheme<C> {
             overline_e: self.commit(e, *u),
             u: *u,
             overline_w: self.commit(w, *u),
-            x: x.to_vec(),
+            x: x.clone(),
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::matrix::{Element, SparseMatrix};
+use crate::matrix::{DenseVectors, Element, SparseMatrix};
 use crate::relaxed_r1cs::RelaxedR1CS;
 
 use zkstd::common::PrimeField;
@@ -60,7 +60,7 @@ impl<F: PrimeField> R1cs<F> {
     pub(crate) fn relax(&self) -> RelaxedR1CS<F> {
         let Self { m, l, a, b, c } = self.clone();
         RelaxedR1CS {
-            e: vec![F::zero(); m],
+            e: DenseVectors(vec![F::zero(); m]),
             u: F::one(),
             l,
             a,

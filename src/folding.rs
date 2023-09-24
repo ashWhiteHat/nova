@@ -74,7 +74,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
 
         // 1. compute cross term
         let t = self.compute_cross_term(committed1.u, committed2.u);
-        let overline_t = self.cs.commit(&t.0, rt);
+        let overline_t = self.cs.commit(&t, rt);
 
         // 2. sample challenge
         // TODO: should be replaced by transcript
@@ -85,12 +85,12 @@ impl<C: CurveAffine> FoldingScheme<C> {
             committed1.overline_e.to_extended() + overline_t * r + committed1.overline_e * r2;
         let u = committed1.u + r * committed2.u;
         let overline_w = committed1.overline_w.to_extended() + committed2.overline_w * r;
-        let x = DenseVectors(committed1.x) + DenseVectors(committed2.x) * r;
+        let x = committed1.x + committed2.x * r;
 
         // 4. output folded witness
-        let e = DenseVectors(instance1.e) + t * r + DenseVectors(instance2.e) * r2;
+        let e = instance1.e + t * r + instance2.e * r2;
         let r_e = instance1.u + r * rt + instance1.u * r2;
-        let w = DenseVectors(instance1.w) + DenseVectors(instance2.w) * r;
+        let w = instance1.w + instance2.w * r;
         let r_w = instance1.u + r * instance2.u;
     }
 

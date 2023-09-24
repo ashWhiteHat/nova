@@ -17,6 +17,7 @@ impl<F: PrimeField> From<F> for Element<F> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub(crate) struct DenseVectors<F: PrimeField>(pub(crate) Vec<F>);
 
 impl<F: PrimeField> Mul<F> for DenseVectors<F> {
