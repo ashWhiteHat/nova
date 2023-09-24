@@ -20,6 +20,31 @@ impl<F: PrimeField> From<F> for Element<F> {
 #[derive(Clone, Debug)]
 pub(crate) struct DenseVectors<F: PrimeField>(pub(crate) Vec<F>);
 
+impl<F: PrimeField> DenseVectors<F> {
+    pub(crate) fn iter(&self) -> DenseVectorsIterator<F> {
+        DenseVectorsIterator {
+            dense_vectors: self.clone(),
+            index: 0,
+        }
+    }
+}
+
+pub(crate) struct DenseVectorsIterator<F: PrimeField> {
+    dense_vectors: DenseVectors<F>,
+    index: usize,
+}
+
+impl<F: PrimeField> Iterator for DenseVectorsIterator<F> {
+    type Item = F;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.dense_vectors.0.len() {
+            Some(self.dense_vectors.0[self.index])
+        } else {
+            None
+        }
+    }
+}
+
 impl<F: PrimeField> Mul<F> for DenseVectors<F> {
     type Output = Self;
 

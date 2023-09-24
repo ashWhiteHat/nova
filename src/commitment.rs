@@ -25,10 +25,9 @@ impl<C: CurveAffine> CommitmentScheme<C> {
 
     pub(crate) fn commit(&self, m: &DenseVectors<C::Scalar>, r: C::Scalar) -> C {
         (self.h * r
-            + m.0
-                .iter()
+            + m.iter()
                 .zip(self.domain.iter())
-                .fold(C::Extended::ADDITIVE_IDENTITY, |sum, (v, e)| sum + *e * *v))
+                .fold(C::Extended::ADDITIVE_IDENTITY, |sum, (v, e)| sum + *e * v))
         .into()
     }
 
