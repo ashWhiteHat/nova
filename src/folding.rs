@@ -88,7 +88,10 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let x = DenseVectors(committed1.x) + DenseVectors(committed2.x) * r;
 
         // 4. output folded witness
-        // let e =
+        let e = DenseVectors(instance1.e) + t * r + DenseVectors(instance2.e) * r2;
+        let r_e = instance1.u + r * rt + instance1.u * r2;
+        let w = DenseVectors(instance1.w) + DenseVectors(instance2.w) * r;
+        let r_w = instance1.u + r * instance2.u;
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
