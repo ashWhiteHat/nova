@@ -36,13 +36,13 @@ impl<F: PrimeField> R1cs<F> {
         b: impl Into<Element<F>>,
         c: impl Into<Element<F>>,
     ) {
-        self.a.0[self.m].push(a.into());
-        self.b.0[self.m].push(b.into());
-        self.c.0[self.m].push(c.into());
+        self.a[self.m].push(a.into());
+        self.b[self.m].push(b.into());
+        self.c[self.m].push(c.into());
     }
 
     pub(crate) fn append_a(&mut self, a: impl Into<Element<F>>) {
-        self.a.0[self.m].push(a.into())
+        self.a[self.m].push(a.into())
     }
 
     pub(crate) fn increment(&mut self) {

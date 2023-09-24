@@ -28,7 +28,7 @@ pub(crate) fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>) -> SparseMatr
 
 pub(crate) fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: &Vec<F>) -> F {
     elements.iter().fold(F::zero(), |sum, element| {
-        let (wire, value) = (element.0, element.1);
+        let (wire, value) = element.get();
         let index = match wire {
             Wire::Instance(index) => index,
             Wire::Witness(index) => index,
@@ -40,9 +40,9 @@ pub(crate) fn dot_product<F: PrimeField>(elements: &Vec<Element<F>>, witnesses: 
 pub(crate) fn is_satisfy<F: PrimeField>(r1cs: &R1cs<F>, witnesses: Vec<F>) -> bool {
     let R1cs { m, l: _, a, b, c } = r1cs;
     (0..*m).all(|i| {
-        let a_prod = dot_product(&a.0[i], &witnesses);
-        let b_prod = dot_product(&b.0[i], &witnesses);
-        let c_prod = dot_product(&c.0[i], &witnesses);
+        let a_prod = dot_product(&a[i], &witnesses);
+        let b_prod = dot_product(&b[i], &witnesses);
+        let c_prod = dot_product(&c[i], &witnesses);
         a_prod * b_prod == c_prod
     })
 }

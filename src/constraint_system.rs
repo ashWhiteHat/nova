@@ -66,9 +66,9 @@ impl<F: PrimeField> ConstraintSystem<F> {
     pub fn is_sat(&self) -> bool {
         let R1cs { m, l: _, a, b, c } = &self.r1cs;
         (0..*m).all(|i| {
-            let a_prod = self.dot_product(&a.0[i]);
-            let b_prod = self.dot_product(&b.0[i]);
-            let c_prod = self.dot_product(&c.0[i]);
+            let a_prod = self.dot_product(&a[i]);
+            let b_prod = self.dot_product(&b[i]);
+            let c_prod = self.dot_product(&c[i]);
             a_prod * b_prod == c_prod
         })
     }
