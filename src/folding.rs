@@ -1,9 +1,9 @@
 use crate::commitment::CommitmentScheme;
 use crate::matrix::DenseVectors;
 use crate::r1cs::R1cs;
-use crate::relaxed_r1cs::CommittedRelaxedR1CS;
+use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
 
-use zkstd::common::CurveAffine;
+use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub struct FoldingScheme<C: CurveAffine> {
     pub r1cs: R1cs<C::Scalar>,
@@ -39,19 +39,56 @@ impl<C: CurveAffine> FoldingScheme<C> {
     pub fn folding(&self) {
         // convert r1cs instance to relaxed r1cs instance
         let relaxed_r1cs = self.r1cs.relax();
+        // construct relaxed r1cs instance
+        let relaxed_r1cs_instance1 = relaxed_r1cs.to_instance(&self.x1, &self.w1);
+        let relaxed_r1cs_instance2 = relaxed_r1cs.to_instance(&self.x2, &self.w2);
         // commit relaxed r1cs instance
-        let crr1 = self
+        let committed_relaxed_r1cs_instance1 = self
             .cs
-            .commit_relaxed_r1cs(&relaxed_r1cs, &self.w1, &self.x1, &self.cs);
-        let crr2 = self
+            .commit_relaxed_r1cs_instance(&relaxed_r1cs_instance1);
+        let committed_relaxed_r1cs_instance2 = self
             .cs
-            .commit_relaxed_r1cs(&relaxed_r1cs, &self.w2, &self.x2, &self.cs);
-        self.prove(crr1, crr2)
+            .commit_relaxed_r1cs_instance(&relaxed_r1cs_instance2);
+        self.prove(
+            (relaxed_r1cs_instance1, relaxed_r1cs_instance2),
+            (
+                committed_relaxed_r1cs_instance1,
+                committed_relaxed_r1cs_instance2,
+            ),
+        )
     }
 
-    fn prove(&self, crr1: CommittedRelaxedR1CS<C>, crr2: CommittedRelaxedR1CS<C>) {
-        // compute cross term
-        let t = self.compute_cross_term(crr1.u, crr2.u);
+    fn prove(
+        &self,
+        instance_pair: (
+            RelaxedR1CSInstance<C::Scalar>,
+            RelaxedR1CSInstance<C::Scalar>,
+        ),
+        committed_pair: (CommittedRelaxedR1CS<C>, CommittedRelaxedR1CS<C>),
+    ) {
+        // 0. setup params
+        let rt = C::Scalar::one();
+        let r2 = self.r.square();
+        let (instance1, instance2) = instance_pair;
+        let (committed1, committed2) = committed_pair;
+
+        // 1. compute cross term
+        let t = self.compute_cross_term(committed1.u, committed2.u);
+        let overline_t = self.cs.commit(&t.0, rt);
+
+        // 2. sample challenge
+        // TODO: should be replaced by transcript
+        let r = self.r;
+
+        // 3. output folded instance
+        let overline_e =
+            committed1.overline_e.to_extended() + overline_t * r + committed1.overline_e * r2;
+        let u = committed1.u + r * committed2.u;
+        let overline_w = committed1.overline_w.to_extended() + committed2.overline_w * r;
+        let x = DenseVectors(committed1.x) + DenseVectors(committed2.x) * r;
+
+        // 4. output folded witness
+        // let e =
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)

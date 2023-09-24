@@ -1,4 +1,4 @@
-use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CS};
+use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
 
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
 
@@ -30,17 +30,15 @@ impl<C: CurveAffine> CommitmentScheme<C> {
         .into()
     }
 
-    pub(crate) fn commit_relaxed_r1cs(
+    pub(crate) fn commit_relaxed_r1cs_instance(
         &self,
-        relaxed_r1cs: &RelaxedR1CS<C::Scalar>,
-        w: &Vec<C::Scalar>,
-        x: &Vec<C::Scalar>,
-        cs: &CommitmentScheme<C>,
+        relaxed_r1cs_instance: &RelaxedR1CSInstance<C::Scalar>,
     ) -> CommittedRelaxedR1CS<C> {
+        let RelaxedR1CSInstance { e, u, x, w } = relaxed_r1cs_instance;
         CommittedRelaxedR1CS {
-            overline_e: cs.commit(&relaxed_r1cs.e, relaxed_r1cs.u),
-            u: relaxed_r1cs.u,
-            overline_w: cs.commit(&w, relaxed_r1cs.u),
+            overline_e: self.commit(e, *u),
+            u: *u,
+            overline_w: self.commit(w, *u),
             x: x.to_vec(),
         }
     }
