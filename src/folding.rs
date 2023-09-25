@@ -2,6 +2,7 @@ use crate::commitment::CommitmentScheme;
 use crate::committed_relaxed_r1cs::CommittedRelaxedR1CSInstance;
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1cs, R1csInstance};
+use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
@@ -31,16 +32,17 @@ impl<C: CurveAffine> FoldingScheme<C> {
     }
 
     pub fn folding(&self) {
+        // choose randomness
+        let r_e = C::Scalar::one();
+        let r_w = C::Scalar::one();
         // construct relaxed r1cs instance
         let relaxed_r1cs_instance1 = self.instance1.relax();
         let relaxed_r1cs_instance2 = self.instance2.relax();
         // commit relaxed r1cs instance
-        let committed_relaxed_r1cs_instance1 = self
-            .cs
-            .commit_relaxed_r1cs_instance(&relaxed_r1cs_instance1);
-        let committed_relaxed_r1cs_instance2 = self
-            .cs
-            .commit_relaxed_r1cs_instance(&relaxed_r1cs_instance2);
+        let committed_relaxed_r1cs_instance1 =
+            commit_relaxed_r1cs_instance(relaxed_r1cs_instance1, r_e, r_w, &self.cs);
+        let committed_relaxed_r1cs_instance2 =
+            commit_relaxed_r1cs_instance(relaxed_r1cs_instance2, r_e, r_w, &self.cs);
         self.prove((
             committed_relaxed_r1cs_instance1,
             committed_relaxed_r1cs_instance2,

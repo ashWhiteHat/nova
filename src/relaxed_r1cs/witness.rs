@@ -1,4 +1,4 @@
-use crate::matrix::DenseVectors;
+use crate::{committed_relaxed_r1cs::CommittedRelaxedR1csWitness, matrix::DenseVectors};
 
 use zkstd::common::PrimeField;
 
@@ -13,8 +13,12 @@ pub struct RelaxedR1csWitness<F: PrimeField> {
     pub(crate) u: F,
 }
 
-impl<F: PrimeField> RelaxedR1csWitness<F> {
-    pub(crate) fn get(&self) -> (DenseVectors<F>, DenseVectors<F>, F) {
-        (self.x.clone(), self.w.clone(), self.u)
-    }
+pub(crate) fn commit_relaxed_z<F: PrimeField>(
+    relaxed_r1cs_witness: &RelaxedR1csWitness<F>,
+    e: DenseVectors<F>,
+    r_e: F,
+    r_w: F,
+) -> CommittedRelaxedR1csWitness<F> {
+    let w = relaxed_r1cs_witness.w.clone();
+    CommittedRelaxedR1csWitness { e, r_e, w, r_w }
 }
