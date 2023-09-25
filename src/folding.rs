@@ -1,14 +1,14 @@
 use crate::commitment::CommitmentScheme;
 use crate::matrix::DenseVectors;
-use crate::r1cs::{R1cs, R1csWitness};
+use crate::r1cs::{R1cs, R1csInstance, R1csWitness};
 use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub struct FoldingScheme<C: CurveAffine> {
     pub r1cs: R1cs<C::Scalar>,
-    pub witness1: R1csWitness<C::Scalar>,
-    pub witness2: R1csWitness<C::Scalar>,
+    pub instance1: R1csInstance<C::Scalar>,
+    pub instance2: R1csInstance<C::Scalar>,
     pub cs: CommitmentScheme<C>,
     pub r: C::Scalar,
 }
@@ -16,15 +16,15 @@ pub struct FoldingScheme<C: CurveAffine> {
 impl<C: CurveAffine> FoldingScheme<C> {
     pub fn new(
         r1cs: R1cs<C::Scalar>,
-        witness1: R1csWitness<C::Scalar>,
-        witness2: R1csWitness<C::Scalar>,
+        instance1: R1csInstance<C::Scalar>,
+        instance2: R1csInstance<C::Scalar>,
         cs: CommitmentScheme<C>,
         r: C::Scalar,
     ) -> Self {
         Self {
             r1cs,
-            witness1,
-            witness2,
+            instance1,
+            instance2,
             cs,
             r,
         }
@@ -116,6 +116,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::r1cs::R1csInstance;
     use crate::tests::{example_r1cs_instance, example_r1cs_witness};
 
     use bls_12_381::{Fr as Scalar, G1Affine as Affine};
@@ -133,13 +134,15 @@ mod tests {
         let r1cs: R1cs<Scalar> = example_r1cs_instance();
         let z1 = example_r1cs_witness(3);
         let z2 = example_r1cs_witness(4);
-        let witness1 = r1cs.instance_and_witness(z1);
-        let witness2 = r1cs.instance_and_witness(z2);
+
+        let instanc1 = R1csInstance::new(&r1cs, &z1);
+        let instanc2 = R1csInstance::new(&r1cs, &z2);
+
         let r: Scalar = challenge_r();
         let n = r1cs.m.next_power_of_two() as u64;
         let cs: CommitmentScheme<Affine> = CommitmentScheme::new(n, OsRng);
 
-        let folding_scheme = FoldingScheme::new(r1cs, witness1, witness2, cs, r);
+        let folding_scheme = FoldingScheme::new(r1cs, instanc1, instanc2, cs, r);
         folding_scheme.folding();
     }
 }
