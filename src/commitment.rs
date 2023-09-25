@@ -1,5 +1,5 @@
 use crate::matrix::DenseVectors;
-use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
+use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance, RelaxedR1csWitness};
 
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
 
@@ -35,9 +35,13 @@ impl<C: CurveAffine> CommitmentScheme<C> {
         &self,
         relaxed_r1cs_instance: &RelaxedR1CSInstance<C::Scalar>,
     ) -> CommittedRelaxedR1CS<C> {
-        let RelaxedR1CSInstance { e, u, x, w } = relaxed_r1cs_instance;
+        let RelaxedR1CSInstance {
+            relaxed_r1cs,
+            relaxed_z,
+        } = relaxed_r1cs_instance;
+        let RelaxedR1csWitness { x, w, u } = relaxed_z;
         CommittedRelaxedR1CS {
-            overline_e: self.commit(e, *u),
+            overline_e: self.commit(&relaxed_r1cs.e, *u),
             u: *u,
             overline_w: self.commit(w, *u),
             x: x.clone(),

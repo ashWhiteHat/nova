@@ -31,11 +31,9 @@ impl<C: CurveAffine> FoldingScheme<C> {
     }
 
     pub fn folding(&self) {
-        // convert r1cs instance to relaxed r1cs instance
-        let relaxed_r1cs = self.r1cs.relax();
         // construct relaxed r1cs instance
-        let relaxed_r1cs_instance1 = relaxed_r1cs.to_instance(&self.witness1);
-        let relaxed_r1cs_instance2 = relaxed_r1cs.to_instance(&self.witness2);
+        let relaxed_r1cs_instance1 = self.instance1.relax();
+        let relaxed_r1cs_instance2 = self.instance2.relax();
         // commit relaxed r1cs instance
         let committed_relaxed_r1cs_instance1 = self
             .cs

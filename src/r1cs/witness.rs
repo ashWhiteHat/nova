@@ -1,4 +1,4 @@
-use crate::matrix::DenseVectors;
+use crate::{matrix::DenseVectors, relaxed_r1cs::RelaxedR1csWitness};
 
 use zkstd::common::PrimeField;
 
@@ -43,5 +43,14 @@ impl<F: PrimeField> R1csWitness<F> {
 
     pub(crate) fn append_witness(&mut self, witness: F) {
         self.w.0.push(witness)
+    }
+
+    pub(crate) fn relax(&self) -> RelaxedR1csWitness<F> {
+        let Self { x, w } = self;
+        RelaxedR1csWitness {
+            x: *x,
+            w: *w,
+            u: F::one(),
+        }
     }
 }
