@@ -1,5 +1,5 @@
 use crate::commitment::CommitmentScheme;
-use crate::committed_relaxed_r1cs::CommittedRelaxedR1CS;
+use crate::committed_relaxed_r1cs::{CommittedRelaxedR1CS, CommittedRelaxedR1CSInstance};
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1cs, R1csInstance};
 use crate::relaxed_r1cs::RelaxedR1CSInstance;
@@ -57,16 +57,23 @@ impl<C: CurveAffine> FoldingScheme<C> {
             RelaxedR1CSInstance<C::Scalar>,
             RelaxedR1CSInstance<C::Scalar>,
         ),
-        committed_pair: (CommittedRelaxedR1CS<C>, CommittedRelaxedR1CS<C>),
+        committed_pair: (
+            CommittedRelaxedR1CSInstance<C>,
+            CommittedRelaxedR1CSInstance<C>,
+        ),
     ) {
         // 0. setup params
         let rt = C::Scalar::one();
         let r2 = self.r.square();
         let (instance1, instance2) = instance_pair;
         let (committed1, committed2) = committed_pair;
+        let (overline_e_1, u1, overline_w_1, x1) = committed1.committed_relaxed_r1cs.get();
+        let (overline_e_2, u2, overline_w_2, x2) = committed2.committed_relaxed_r1cs.get();
+        let (e1, r_e_1, w1, r_w_1) = committed1.committed_relaxed_z.get();
+        let (e2, r_e_2, w2, r_w_2) = committed2.committed_relaxed_z.get();
 
         // 1. compute cross term
-        let t = self.compute_cross_term(committed1.u, committed2.u);
+        let t = self.compute_cross_term(u1, u2);
         let overline_t = self.cs.commit(&t, rt);
 
         // 2. sample challenge
@@ -74,30 +81,31 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let r = self.r;
 
         // 3. output folded instance
-        let overline_e =
-            committed1.overline_e.to_extended() + overline_t * r + committed1.overline_e * r2;
-        let u = committed1.u + r * committed2.u;
-        let overline_w = committed1.overline_w.to_extended() + committed2.overline_w * r;
-        let x = committed1.x + committed2.x * r;
+        let overline_e = overline_e_1.to_extended() + overline_t * r + overline_e_2 * r2;
+        let u = u1 + r * u2;
+        let overline_w = overline_w_1.to_extended() + overline_w_2 * r;
+        let x = x1 + x2 * r;
 
         // 4. output folded witness
-        let e = instance1.e + t * r + instance2.e * r2;
-        let r_e = instance1.u + r * rt + instance1.u * r2;
-        let w = instance1.w + instance2.w * r;
-        let r_w = instance1.u + r * instance2.u;
+        let e = e1 + t * r + e2 * r2;
+        let r_e = u1 + r * rt + u1 * r2;
+        let w = w1 + w2 * r;
+        let r_w = u1 + r * u2;
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
     fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) -> DenseVectors<C::Scalar> {
         let R1cs { m, l: _, a, b, c } = self.r1cs.clone();
+        let (x1, w1) = self.instance1.z.get();
+        let (x2, w2) = self.instance2.z.get();
 
         // r1cs and z vectors dot product
-        let az2 = a.prod(m, &self.witness2.x, &self.witness2.w);
-        let bz1 = b.prod(m, &self.witness1.x, &self.witness1.w);
-        let az1 = a.prod(m, &self.witness1.x, &self.witness1.w);
-        let bz2 = b.prod(m, &self.witness2.x, &self.witness2.w);
-        let cz2 = c.prod(m, &self.witness2.x, &self.witness2.w);
-        let cz1 = c.prod(m, &self.witness1.x, &self.witness1.w);
+        let az2 = a.prod(m, &x2, &w2);
+        let bz1 = b.prod(m, &x1, &w1);
+        let az1 = a.prod(m, &x1, &w1);
+        let bz2 = b.prod(m, &x2, &w2);
+        let cz2 = c.prod(m, &x2, &w2);
+        let cz1 = c.prod(m, &x1, &w1);
 
         // dense vectors multiplication a.k.a Hadamard product
         let az2bz1 = az2 * bz1;

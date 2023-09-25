@@ -8,7 +8,7 @@ use zkstd::common::PrimeField;
 
 use crate::relaxed_r1cs::RelaxedR1CSInstance;
 
-pub(crate) struct R1csInstance<F: PrimeField> {
+pub struct R1csInstance<F: PrimeField> {
     pub(crate) r1cs: R1cs<F>,
     pub(crate) z: R1csWitness<F>,
 }

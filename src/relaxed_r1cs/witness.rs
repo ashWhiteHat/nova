@@ -12,3 +12,9 @@ pub struct RelaxedR1csWitness<F: PrimeField> {
     /// scalar
     pub(crate) u: F,
 }
+
+impl<F: PrimeField> RelaxedR1csWitness<F> {
+    pub(crate) fn get(&self) -> (DenseVectors<F>, DenseVectors<F>, F) {
+        (self.x.clone(), self.w.clone(), self.u)
+    }
+}

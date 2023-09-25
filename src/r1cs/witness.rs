@@ -29,6 +29,10 @@ impl<F: PrimeField> R1csWitness<F> {
         }
     }
 
+    pub(crate) fn get(&self) -> (DenseVectors<F>, DenseVectors<F>) {
+        (self.x.clone(), self.w.clone())
+    }
+
     pub(crate) fn public_len(&self) -> usize {
         self.x.0.len()
     }
@@ -48,8 +52,8 @@ impl<F: PrimeField> R1csWitness<F> {
     pub(crate) fn relax(&self) -> RelaxedR1csWitness<F> {
         let Self { x, w } = self;
         RelaxedR1csWitness {
-            x: *x,
-            w: *w,
+            x: x.clone(),
+            w: w.clone(),
             u: F::one(),
         }
     }

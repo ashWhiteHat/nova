@@ -14,3 +14,13 @@ pub struct CommittedRelaxedR1csWitness<F: PrimeField> {
     /// commitment randomness for W
     pub(crate) r_w: F,
 }
+
+impl<F: PrimeField> CommittedRelaxedR1csWitness<F> {
+    pub(crate) fn new(e: DenseVectors<F>, r_e: F, w: DenseVectors<F>, r_w: F) -> Self {
+        Self { e, r_e, w, r_w }
+    }
+
+    pub(crate) fn get(&self) -> (DenseVectors<F>, F, DenseVectors<F>, F) {
+        (self.e.clone(), self.r_e, self.w.clone(), self.r_w)
+    }
+}
