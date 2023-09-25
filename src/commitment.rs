@@ -2,7 +2,7 @@ use crate::committed_relaxed_r1cs::{
     CommittedRelaxedR1CS, CommittedRelaxedR1CSInstance, CommittedRelaxedR1csWitness,
 };
 use crate::matrix::DenseVectors;
-use crate::relaxed_r1cs::{RelaxedR1CS, RelaxedR1CSInstance, RelaxedR1csWitness};
+use crate::relaxed_r1cs::{RelaxedR1CSInstance, RelaxedR1csWitness};
 
 use zkstd::common::{CurveAffine, CurveGroup, Ring, RngCore};
 
@@ -26,7 +26,7 @@ impl<C: CurveAffine> CommitmentScheme<C> {
         Self { h, domain }
     }
 
-    pub(crate) fn commit(&self, m: &DenseVectors<C::Scalar>, r: C::Scalar) -> C {
+    pub(crate) fn commit(&self, m: &DenseVectors<C::Scalar>, r: &C::Scalar) -> C {
         (self.h * r
             + m.iter()
                 .zip(self.domain.iter())
@@ -40,16 +40,12 @@ impl<C: CurveAffine> CommitmentScheme<C> {
     ) -> CommittedRelaxedR1CSInstance<C> {
         // choose commitment randomness
         let (r_e, r_w) = (C::Scalar::one(), C::Scalar::one());
-        let RelaxedR1CSInstance {
-            relaxed_r1cs,
-            relaxed_z,
-        } = relaxed_r1cs_instance;
-        let RelaxedR1CS { e, u, l, a, b, c } = relaxed_r1cs;
-        let RelaxedR1csWitness { x, w, u } = relaxed_z;
+        let e = &relaxed_r1cs_instance.relaxed_r1cs.e;
+        let RelaxedR1csWitness { x, w, u } = &relaxed_r1cs_instance.relaxed_z;
         let committed_relaxed_r1cs = CommittedRelaxedR1CS {
-            overline_e: self.commit(&relaxed_r1cs.e, *u),
+            overline_e: self.commit(&e, u),
             u: *u,
-            overline_w: self.commit(w, *u),
+            overline_w: self.commit(&w, u),
             x: x.clone(),
         };
         let committed_relaxed_z = CommittedRelaxedR1csWitness::new(e.clone(), r_e, w.clone(), r_w);

@@ -1,8 +1,7 @@
 use crate::commitment::CommitmentScheme;
-use crate::committed_relaxed_r1cs::{CommittedRelaxedR1CS, CommittedRelaxedR1CSInstance};
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1CSInstance;
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1cs, R1csInstance};
-use crate::relaxed_r1cs::RelaxedR1CSInstance;
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
@@ -42,21 +41,14 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let committed_relaxed_r1cs_instance2 = self
             .cs
             .commit_relaxed_r1cs_instance(&relaxed_r1cs_instance2);
-        self.prove(
-            (relaxed_r1cs_instance1, relaxed_r1cs_instance2),
-            (
-                committed_relaxed_r1cs_instance1,
-                committed_relaxed_r1cs_instance2,
-            ),
-        )
+        self.prove((
+            committed_relaxed_r1cs_instance1,
+            committed_relaxed_r1cs_instance2,
+        ))
     }
 
     fn prove(
         &self,
-        instance_pair: (
-            RelaxedR1CSInstance<C::Scalar>,
-            RelaxedR1CSInstance<C::Scalar>,
-        ),
         committed_pair: (
             CommittedRelaxedR1CSInstance<C>,
             CommittedRelaxedR1CSInstance<C>,
@@ -65,32 +57,31 @@ impl<C: CurveAffine> FoldingScheme<C> {
         // 0. setup params
         let rt = C::Scalar::one();
         let r2 = self.r.square();
-        let (instance1, instance2) = instance_pair;
         let (committed1, committed2) = committed_pair;
-        let (overline_e_1, u1, overline_w_1, x1) = committed1.committed_relaxed_r1cs.get();
-        let (overline_e_2, u2, overline_w_2, x2) = committed2.committed_relaxed_r1cs.get();
-        let (e1, r_e_1, w1, r_w_1) = committed1.committed_relaxed_z.get();
-        let (e2, r_e_2, w2, r_w_2) = committed2.committed_relaxed_z.get();
+        let (overline_e1, u1, overline_w1, x1) = committed1.committed_relaxed_r1cs.get();
+        let (overline_e2, u2, overline_w2, x2) = committed2.committed_relaxed_r1cs.get();
+        let (e1, r_e1, w1, r_w1) = committed1.committed_relaxed_z.get();
+        let (e2, r_e2, w2, r_w2) = committed2.committed_relaxed_z.get();
 
         // 1. compute cross term
         let t = self.compute_cross_term(u1, u2);
-        let overline_t = self.cs.commit(&t, rt);
+        let overline_t = self.cs.commit(&t, &rt);
 
         // 2. sample challenge
         // TODO: should be replaced by transcript
         let r = self.r;
 
         // 3. output folded instance
-        let overline_e = overline_e_1.to_extended() + overline_t * r + overline_e_2 * r2;
+        let overline_e = overline_e1.to_extended() + overline_t * r + overline_e2 * r2;
         let u = u1 + r * u2;
-        let overline_w = overline_w_1.to_extended() + overline_w_2 * r;
+        let overline_w = overline_w1.to_extended() + overline_w2 * r;
         let x = x1 + x2 * r;
 
         // 4. output folded witness
         let e = e1 + t * r + e2 * r2;
-        let r_e = u1 + r * rt + u1 * r2;
+        let r_e = r_e1 + r * rt + u1 * r_e2;
         let w = w1 + w2 * r;
-        let r_w = u1 + r * u2;
+        let r_w = r_w1 + r * r_w2;
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
