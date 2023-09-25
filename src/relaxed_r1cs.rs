@@ -1,4 +1,5 @@
 use crate::matrix::{DenseVectors, SparseMatrix};
+use crate::r1cs::R1csWitness;
 
 use zkstd::common::{CurveAffine, PrimeField};
 
@@ -15,12 +16,12 @@ pub(crate) struct RelaxedR1CS<F: PrimeField> {
 }
 
 impl<F: PrimeField> RelaxedR1CS<F> {
-    pub(crate) fn to_instance(&self, x: &Vec<F>, w: &Vec<F>) -> RelaxedR1CSInstance<F> {
+    pub(crate) fn to_instance(&self, witness: &R1csWitness<F>) -> RelaxedR1CSInstance<F> {
         RelaxedR1CSInstance {
             e: self.e.clone(),
             u: self.u.clone(),
-            x: DenseVectors(x.to_vec()),
-            w: DenseVectors(w.to_vec()),
+            x: witness.x.clone(),
+            w: witness.w.clone(),
         }
     }
 }

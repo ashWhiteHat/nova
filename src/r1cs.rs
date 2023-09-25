@@ -56,9 +56,9 @@ impl<F: PrimeField> R1cs<F> {
         self.m += 1
     }
 
-    pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> (Vec<F>, Vec<F>) {
+    pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> R1csWitness<F> {
         let offset = self.l + 1;
-        (witnesses[1..offset].to_vec(), witnesses[offset..].to_vec())
+        R1csWitness::new(witnesses[1..offset].to_vec(), witnesses[offset..].to_vec())
     }
 
     pub(crate) fn relax(&self) -> RelaxedR1CS<F> {

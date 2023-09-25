@@ -10,7 +10,12 @@ use zkstd::common::PrimeField;
 pub(crate) struct SparseMatrix<F: PrimeField>(pub(crate) Vec<Vec<Element<F>>>);
 
 impl<F: PrimeField> SparseMatrix<F> {
-    pub(crate) fn prod(&self, m: usize, x: &Vec<F>, w: &Vec<F>) -> DenseVectors<F> {
+    pub(crate) fn prod(
+        &self,
+        m: usize,
+        x: &DenseVectors<F>,
+        w: &DenseVectors<F>,
+    ) -> DenseVectors<F> {
         let mut vectors = DenseVectors(vec![F::zero(); m]);
         for (index, elements) in self.0.iter().enumerate() {
             vectors[index] = elements.iter().fold(F::zero(), |sum, element| {
