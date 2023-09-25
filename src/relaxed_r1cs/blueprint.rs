@@ -1,6 +1,4 @@
-use super::RelaxedR1CSInstance;
 use crate::matrix::{DenseVectors, SparseMatrix};
-use crate::r1cs::R1csWitness;
 
 use zkstd::common::PrimeField;
 

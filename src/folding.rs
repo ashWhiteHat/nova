@@ -1,7 +1,8 @@
 use crate::commitment::CommitmentScheme;
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1CS;
 use crate::matrix::DenseVectors;
-use crate::r1cs::{R1cs, R1csInstance, R1csWitness};
-use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance};
+use crate::r1cs::{R1cs, R1csInstance};
+use crate::relaxed_r1cs::RelaxedR1CSInstance;
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 

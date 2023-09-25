@@ -2,7 +2,7 @@ use crate::matrix::DenseVectors;
 
 use zkstd::common::PrimeField;
 
-/// witness for r1cs
+/// witness for relaxed r1cs
 #[derive(Debug)]
 pub struct RelaxedR1csWitness<F: PrimeField> {
     /// public inputs and outputs

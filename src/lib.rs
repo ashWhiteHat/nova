@@ -1,4 +1,5 @@
 mod commitment;
+mod committed_relaxed_r1cs;
 mod constraint_system;
 mod folding;
 mod matrix;

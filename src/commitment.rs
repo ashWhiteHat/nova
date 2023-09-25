@@ -1,5 +1,6 @@
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1CS;
 use crate::matrix::DenseVectors;
-use crate::relaxed_r1cs::{CommittedRelaxedR1CS, RelaxedR1CSInstance, RelaxedR1csWitness};
+use crate::relaxed_r1cs::{RelaxedR1CSInstance, RelaxedR1csWitness};
 
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
 
