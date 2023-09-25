@@ -1,6 +1,10 @@
+mod witness;
+
 use crate::matrix::{DenseVectors, Element, SparseMatrix};
 use crate::relaxed_r1cs::RelaxedR1CS;
+use crate::wire::Wire;
 
+pub(crate) use witness::R1csWitness;
 use zkstd::common::PrimeField;
 
 /// https://eprint.iacr.org/2021/370.pdf
@@ -67,6 +71,28 @@ impl<F: PrimeField> R1cs<F> {
             b,
             c,
         }
+    }
+
+    pub(crate) fn is_sat(&self, witness: &R1csWitness<F>) -> bool {
+        let R1cs { m, l: _, a, b, c } = self;
+        (0..*m).all(|i| {
+            let a_prod = self.dot_product(&a[i], &witness);
+            let b_prod = self.dot_product(&b[i], &witness);
+            let c_prod = self.dot_product(&c[i], &witness);
+            a_prod * b_prod == c_prod
+        })
+    }
+
+    // dot product for each gate
+    fn dot_product(&self, elements: &Vec<Element<F>>, witness: &R1csWitness<F>) -> F {
+        elements.iter().fold(F::zero(), |sum, element| {
+            let (wire, value) = (element.0, element.1);
+            let coeff = match wire {
+                Wire::Instance(index) => witness.x[index],
+                Wire::Witness(index) => witness.w[index],
+            };
+            sum + coeff * value
+        })
     }
 }
 

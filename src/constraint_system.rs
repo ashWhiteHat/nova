@@ -1,5 +1,5 @@
 use crate::matrix::Element;
-use crate::r1cs::R1cs;
+use crate::r1cs::{R1cs, R1csWitness};
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -7,8 +7,7 @@ use zkstd::common::PrimeField;
 #[derive(Debug)]
 pub struct ConstraintSystem<F: PrimeField> {
     r1cs: R1cs<F>,
-    instances: Vec<F>,
-    witnessess: Vec<F>,
+    witness: R1csWitness<F>,
 }
 
 impl<F: PrimeField> ConstraintSystem<F> {
@@ -16,22 +15,21 @@ impl<F: PrimeField> ConstraintSystem<F> {
     pub fn new() -> Self {
         Self {
             r1cs: R1cs::default(),
-            instances: vec![F::one()],
-            witnessess: vec![],
+            witness: R1csWitness::default(),
         }
     }
 
     /// assign instance value to constraint system
     pub fn public_wire(&mut self, instance: F) -> Wire {
-        let index = self.instances.len();
-        self.instances.push(instance);
+        let index = self.witness.public_len();
+        self.witness.append_instance(instance);
         Wire::instance(index)
     }
 
     /// assign witness value to constraint system
     pub fn private_wire(&mut self, witness: F) -> Wire {
-        let index = self.witnessess.len();
-        self.witnessess.push(witness);
+        let index = self.witness.private_len();
+        self.witness.append_witness(witness);
         Wire::witness(index)
     }
 
@@ -64,25 +62,7 @@ impl<F: PrimeField> ConstraintSystem<F> {
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        let R1cs { m, l: _, a, b, c } = &self.r1cs;
-        (0..*m).all(|i| {
-            let a_prod = self.dot_product(&a[i]);
-            let b_prod = self.dot_product(&b[i]);
-            let c_prod = self.dot_product(&c[i]);
-            a_prod * b_prod == c_prod
-        })
-    }
-
-    // dot product for each gate
-    fn dot_product(&self, elements: &Vec<Element<F>>) -> F {
-        elements.iter().fold(F::zero(), |sum, element| {
-            let (wire, value) = (element.0, element.1);
-            let coeff = match wire {
-                Wire::Instance(index) => self.instances[index],
-                Wire::Witness(index) => self.witnessess[index],
-            };
-            sum + coeff * value
-        })
+        self.r1cs.is_sat(&self.witness)
     }
 }
 
