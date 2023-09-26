@@ -1,5 +1,5 @@
 use crate::matrix::Element;
-use crate::r1cs::{R1cs, R1csInstance, R1csWitness};
+use crate::r1cs::R1csInstance;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;

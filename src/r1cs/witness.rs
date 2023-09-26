@@ -1,4 +1,5 @@
-use crate::{matrix::DenseVectors, relaxed_r1cs::RelaxedR1csWitness, wire::Wire};
+use crate::matrix::DenseVectors;
+use crate::relaxed_r1cs::RelaxedR1csWitness;
 
 use zkstd::common::PrimeField;
 
@@ -10,7 +11,7 @@ pub struct R1csWitness<F: PrimeField> {
     /// intermediate value and private inputs
     pub(crate) w: DenseVectors<F>,
     /// first public input element one
-    pub(crate) one: Wire,
+    pub(crate) one: F,
 }
 
 impl<F: PrimeField> Default for R1csWitness<F> {
@@ -19,7 +20,7 @@ impl<F: PrimeField> Default for R1csWitness<F> {
             // init constraint system with first instance one
             x: DenseVectors(vec![]),
             w: DenseVectors(vec![]),
-            one: Wire::one(),
+            one: F::one(),
         }
     }
 }
@@ -29,7 +30,7 @@ impl<F: PrimeField> R1csWitness<F> {
         Self {
             x: DenseVectors(x),
             w: DenseVectors(w),
-            one: Wire::one(),
+            one: F::one(),
         }
     }
 

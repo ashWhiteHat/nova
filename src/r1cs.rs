@@ -49,7 +49,7 @@ impl<F: PrimeField> R1csInstance<F> {
             let coeff = match wire {
                 Wire::Instance(index) => self.z.x[index],
                 Wire::Witness(index) => self.z.w[index],
-                Wire::One => F::one(),
+                Wire::One => self.z.one,
             };
             sum + coeff * value
         })
