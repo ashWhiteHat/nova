@@ -1,16 +1,12 @@
-use crate::matrix::DenseVectors;
+use crate::matrix::SparseMatrix;
 
-use zkstd::common::CurveAffine;
+use zkstd::common::PrimeField;
 
-pub(crate) struct CommittedRelaxedR1cs<C: CurveAffine> {
-    pub(crate) overline_e: C,
-    pub(crate) u: C::Scalar,
-    pub(crate) overline_w: C,
-    pub(crate) x: DenseVectors<C::Scalar>,
-}
-
-impl<C: CurveAffine> CommittedRelaxedR1cs<C> {
-    pub(crate) fn get(&self) -> (C, C::Scalar, C, DenseVectors<C::Scalar>) {
-        (self.overline_e, self.u, self.overline_w, self.x.clone())
-    }
+pub(crate) struct CommittedRelaxedR1csStructure<F: PrimeField> {
+    /// instance length
+    pub(crate) m: usize,
+    pub(crate) l: usize,
+    pub(crate) a: SparseMatrix<F>,
+    pub(crate) b: SparseMatrix<F>,
+    pub(crate) c: SparseMatrix<F>,
 }

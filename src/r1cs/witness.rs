@@ -1,5 +1,5 @@
 use crate::matrix::DenseVectors;
-use crate::relaxed_r1cs::{RelaxedR1csInstanceData, RelaxedR1csWitness};
+use crate::relaxed_r1cs::{Instance as RelaxedR1csInstance, Witness as RelaxedR1csWitness};
 
 use zkstd::common::PrimeField;
 
@@ -45,7 +45,7 @@ impl<F: PrimeField> Witness<F> {
         self.w.0.push(witness)
     }
 
-    pub(crate) fn relax(&self, m: usize) -> (RelaxedR1csWitness<F>, RelaxedR1csInstanceData<F>) {
+    pub(crate) fn relax(&self, m: usize) -> (RelaxedR1csWitness<F>, RelaxedR1csInstance<F>) {
         let Self { w, x, one: _ } = self;
         let e = DenseVectors(vec![F::zero(); m]);
         let u = F::one();
@@ -56,7 +56,7 @@ impl<F: PrimeField> Witness<F> {
                 x: x.clone(),
                 u,
             },
-            RelaxedR1csInstanceData { e, u, x },
+            RelaxedR1csInstance { e, u, x },
         )
     }
 }

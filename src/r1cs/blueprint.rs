@@ -1,5 +1,5 @@
 use crate::matrix::{DenseVectors, Element, SparseMatrix};
-use crate::relaxed_r1cs::RelaxedR1CS;
+use crate::relaxed_r1cs::RelaxedR1csStructure;
 
 use zkstd::common::PrimeField;
 
@@ -62,8 +62,8 @@ impl<F: PrimeField> R1csStructure<F> {
         (Instance { x: x.clone() }, Witness { w, x, one })
     }
 
-    pub(crate) fn relax(&self) -> RelaxedR1CS<F> {
+    pub(crate) fn relax(&self) -> RelaxedR1csStructure<F> {
         let Self { m, l, a, b, c } = self.clone();
-        RelaxedR1CS { m, l, a, b, c }
+        RelaxedR1csStructure { m, l, a, b, c }
     }
 }
