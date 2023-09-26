@@ -1,6 +1,8 @@
+use crate::commitment::CommitmentScheme;
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1cs;
 use crate::matrix::DenseVectors;
 
-use zkstd::common::PrimeField;
+use zkstd::common::{CurveAffine, PrimeField};
 
 /// instance for relaxed r1cs (E, u, x)
 #[derive(Clone, Debug)]
@@ -20,5 +22,19 @@ impl<F: PrimeField> RelaxedR1csInstanceData<F> {
             u: F::one(),
             x,
         }
+    }
+}
+
+pub(crate) fn commit_relaxed_r1cs_instance_data<C: CurveAffine>(
+    relaxed_r1cs_instance: &RelaxedR1csInstanceData<C::Scalar>,
+    w: &DenseVectors<C::Scalar>,
+    cs: &CommitmentScheme<C>,
+) -> CommittedRelaxedR1cs<C> {
+    let RelaxedR1csInstanceData { e, u, x } = relaxed_r1cs_instance;
+    CommittedRelaxedR1cs {
+        overline_e: cs.commit(e, u),
+        u: *u,
+        overline_w: cs.commit(w, u),
+        x: x.clone(),
     }
 }

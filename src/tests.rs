@@ -1,5 +1,5 @@
 use crate::matrix::{Element, SparseMatrix};
-use crate::r1cs::{R1cs, R1csInstance};
+use crate::r1cs::{R1csInstance, R1csStructure};
 use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
@@ -40,7 +40,7 @@ pub(crate) fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>, l: usize) -> 
 
 /// R1CS for: x^3 + x + 5 = y
 /// https://www.vitalik.ca/general/2016/12/10/qap.html
-pub(crate) fn example_r1cs<F: PrimeField>() -> R1cs<F> {
+pub(crate) fn example_r1cs<F: PrimeField>() -> R1csStructure<F> {
     let m = 4;
     let l = 1;
     let a = dense_to_sparse(
@@ -70,7 +70,7 @@ pub(crate) fn example_r1cs<F: PrimeField>() -> R1cs<F> {
         ],
         l,
     );
-    R1cs { m, l, a, b, c }
+    R1csStructure { m, l, a, b, c }
 }
 
 pub(crate) fn example_r1cs_witness<F: PrimeField>(input: u64) -> Vec<F> {

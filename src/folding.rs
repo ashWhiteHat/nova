@@ -1,13 +1,13 @@
 use crate::commitment::CommitmentScheme;
 use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
 use crate::matrix::DenseVectors;
-use crate::r1cs::{R1cs, R1csInstance};
+use crate::r1cs::{R1csInstance, R1csStructure};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub struct FoldingScheme<C: CurveAffine> {
-    pub r1cs: R1cs<C::Scalar>,
+    pub r1cs: R1csStructure<C::Scalar>,
     pub instance1: R1csInstance<C::Scalar>,
     pub instance2: R1csInstance<C::Scalar>,
     pub cs: CommitmentScheme<C>,
@@ -16,7 +16,7 @@ pub struct FoldingScheme<C: CurveAffine> {
 
 impl<C: CurveAffine> FoldingScheme<C> {
     pub fn new(
-        r1cs: R1cs<C::Scalar>,
+        r1cs: R1csStructure<C::Scalar>,
         instance1: R1csInstance<C::Scalar>,
         instance2: R1csInstance<C::Scalar>,
         cs: CommitmentScheme<C>,
@@ -88,9 +88,9 @@ impl<C: CurveAffine> FoldingScheme<C> {
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
     fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) -> DenseVectors<C::Scalar> {
-        let R1cs { m, l: _, a, b, c } = self.r1cs.clone();
-        let (x1, w1) = self.instance1.z.get();
-        let (x2, w2) = self.instance2.z.get();
+        let R1csStructure { m, l: _, a, b, c } = self.r1cs.clone();
+        let (x1, w1) = self.instance1.witness.get();
+        let (x2, w2) = self.instance2.witness.get();
 
         // r1cs and z vectors dot product
         let az2 = a.prod(m, &x2, &w2);
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn folding_test() {
-        let r1cs: R1cs<Scalar> = example_r1cs();
+        let r1cs: R1csStructure<Scalar> = example_r1cs();
         let z1 = example_r1cs_witness(3);
         let z2 = example_r1cs_witness(4);
 

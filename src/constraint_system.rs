@@ -19,15 +19,15 @@ impl<F: PrimeField> ConstraintSystem<F> {
 
     /// assign instance value to constraint system
     pub fn public_wire(&mut self, instance: F) -> Wire {
-        let index = self.r1cs.z.public_len();
-        self.r1cs.z.append_instance(instance);
+        let index = self.r1cs.witness.public_len();
+        self.r1cs.witness.append_instance(instance);
         Wire::instance(index)
     }
 
     /// assign witness value to constraint system
     pub fn private_wire(&mut self, witness: F) -> Wire {
-        let index = self.r1cs.z.private_len();
-        self.r1cs.z.append_witness(witness);
+        let index = self.r1cs.witness.private_len();
+        self.r1cs.witness.append_witness(witness);
         Wire::witness(index)
     }
 

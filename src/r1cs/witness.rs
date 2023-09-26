@@ -3,9 +3,9 @@ use crate::relaxed_r1cs::{RelaxedR1csInstanceData, RelaxedR1csWitness};
 
 use zkstd::common::PrimeField;
 
-/// witness for r1cs
+/// witness for r1cs (W, x, 1)
 #[derive(Debug)]
-pub struct R1csWitness<F: PrimeField> {
+pub struct Witness<F: PrimeField> {
     /// intermediate value and private inputs
     pub(crate) w: DenseVectors<F>,
     /// public inputs and outputs
@@ -14,7 +14,7 @@ pub struct R1csWitness<F: PrimeField> {
     pub(crate) one: F,
 }
 
-impl<F: PrimeField> Default for R1csWitness<F> {
+impl<F: PrimeField> Default for Witness<F> {
     fn default() -> Self {
         Self {
             w: DenseVectors(vec![]),
@@ -24,15 +24,7 @@ impl<F: PrimeField> Default for R1csWitness<F> {
     }
 }
 
-impl<F: PrimeField> R1csWitness<F> {
-    pub(crate) fn new(x: Vec<F>, w: Vec<F>) -> Self {
-        Self {
-            w: DenseVectors(w),
-            x: DenseVectors(x),
-            one: F::one(),
-        }
-    }
-
+impl<F: PrimeField> Witness<F> {
     pub(crate) fn get(&self) -> (DenseVectors<F>, DenseVectors<F>) {
         (self.x.clone(), self.w.clone())
     }

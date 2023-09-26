@@ -3,12 +3,12 @@ mod instance;
 mod witness;
 
 pub(crate) use blueprint::RelaxedR1CS;
-pub(crate) use instance::RelaxedR1csInstanceData;
-pub(crate) use witness::{commit_relaxed_z, RelaxedR1csWitness};
+pub(crate) use instance::{commit_relaxed_r1cs_instance_data, RelaxedR1csInstanceData};
+pub(crate) use witness::{commit_relaxed_witness, RelaxedR1csWitness};
 
 use crate::commitment::CommitmentScheme;
-use crate::committed_relaxed_r1cs::{CommittedRelaxedR1cs, CommittedRelaxedR1csInstance};
-use crate::matrix::{DenseVectors, Element};
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
+use crate::matrix::Element;
 use crate::wire::Wire;
 
 use zkstd::common::{CurveAffine, PrimeField};
@@ -37,7 +37,7 @@ impl<F: PrimeField> RelaxedR1csInstance<F> {
     // dot product for each gate
     fn dot_product(&self, elements: &Vec<Element<F>>) -> F {
         elements.iter().fold(F::zero(), |sum, element| {
-            let (wire, value) = (element.0, element.1);
+            let (wire, value) = element.get();
             let coeff = match wire {
                 Wire::Witness(index) => self.witness.w[index],
                 Wire::Instance(index) => self.witness.x[index],
@@ -45,20 +45,6 @@ impl<F: PrimeField> RelaxedR1csInstance<F> {
             };
             sum + coeff * value
         })
-    }
-}
-
-pub(crate) fn commit_relaxed_r1cs<C: CurveAffine>(
-    relaxed_r1cs_instance: &RelaxedR1csInstanceData<C::Scalar>,
-    w: &DenseVectors<C::Scalar>,
-    cs: &CommitmentScheme<C>,
-) -> CommittedRelaxedR1cs<C> {
-    let RelaxedR1csInstanceData { e, u, x } = relaxed_r1cs_instance;
-    CommittedRelaxedR1cs {
-        overline_e: cs.commit(e, u),
-        u: *u,
-        overline_w: cs.commit(w, u),
-        x: x.clone(),
     }
 }
 
@@ -75,8 +61,8 @@ pub(crate) fn commit_relaxed_r1cs_instance<C: CurveAffine>(
     } = relaxed_r1cs_instance;
     let e = instance.e.clone();
     let RelaxedR1csWitness { x: _, w, u: _ } = &witness;
-    let committed_relaxed_r1cs = commit_relaxed_r1cs(&instance, w, cs);
-    let committed_relaxed_z = commit_relaxed_z(&witness, e, r_e, r_w);
+    let committed_relaxed_r1cs = commit_relaxed_r1cs_instance_data(&instance, w, cs);
+    let committed_relaxed_z = commit_relaxed_witness(&witness, e, r_e, r_w);
     CommittedRelaxedR1csInstance {
         committed_relaxed_r1cs,
         committed_relaxed_z,

@@ -14,7 +14,7 @@ pub struct RelaxedR1csWitness<F: PrimeField> {
     pub(crate) u: F,
 }
 
-pub(crate) fn commit_relaxed_z<F: PrimeField>(
+pub(crate) fn commit_relaxed_witness<F: PrimeField>(
     relaxed_r1cs_witness: &RelaxedR1csWitness<F>,
     e: DenseVectors<F>,
     r_e: F,

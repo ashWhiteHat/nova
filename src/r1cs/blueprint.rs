@@ -1,15 +1,16 @@
-use crate::matrix::{Element, SparseMatrix};
+use crate::matrix::{DenseVectors, Element, SparseMatrix};
 use crate::relaxed_r1cs::RelaxedR1CS;
 
 use zkstd::common::PrimeField;
 
-pub(crate) use super::witness::R1csWitness;
+pub(crate) use super::instance::Instance;
+pub(crate) use super::witness::Witness;
 
 /// https://eprint.iacr.org/2021/370.pdf
 /// 4.1 Definition 10 R1CS
 ///  (A · Z) ◦ (B · Z) = C · Z
 #[derive(Clone, Debug)]
-pub struct R1cs<F: PrimeField> {
+pub struct R1csStructure<F: PrimeField> {
     /// matrix length
     pub(crate) m: usize,
     /// instance length
@@ -19,7 +20,7 @@ pub struct R1cs<F: PrimeField> {
     pub(crate) c: SparseMatrix<F>,
 }
 
-impl<F: PrimeField> Default for R1cs<F> {
+impl<F: PrimeField> Default for R1csStructure<F> {
     fn default() -> Self {
         Self {
             m: 0,
@@ -31,7 +32,7 @@ impl<F: PrimeField> Default for R1cs<F> {
     }
 }
 
-impl<F: PrimeField> R1cs<F> {
+impl<F: PrimeField> R1csStructure<F> {
     pub(crate) fn append(
         &mut self,
         a: impl Into<Element<F>>,
@@ -54,8 +55,11 @@ impl<F: PrimeField> R1cs<F> {
         self.m += 1
     }
 
-    pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> R1csWitness<F> {
-        R1csWitness::new(witnesses[..self.l].to_vec(), witnesses[self.l..].to_vec())
+    pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> (Instance<F>, Witness<F>) {
+        let w = DenseVectors(witnesses[self.l..].to_vec());
+        let x = DenseVectors(witnesses[..self.l].to_vec());
+        let one = F::one();
+        (Instance { x: x.clone() }, Witness { w, x, one })
     }
 
     pub(crate) fn relax(&self) -> RelaxedR1CS<F> {
