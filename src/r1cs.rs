@@ -5,7 +5,7 @@ pub(crate) use blueprint::R1cs;
 pub(crate) use witness::R1csWitness;
 
 use crate::matrix::Element;
-use crate::relaxed_r1cs::RelaxedR1CSInstance;
+use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -23,15 +23,17 @@ impl<F: PrimeField> R1csInstance<F> {
         Self { r1cs, z }
     }
 
-    pub(crate) fn relax(&self) -> RelaxedR1CSInstance<F> {
+    pub(crate) fn relax(&self) -> RelaxedR1csInstance<F> {
         let relaxed_r1cs = self.r1cs.relax();
-        let relaxed_z = self.z.relax();
-        RelaxedR1CSInstance {
+        let (witness, instance) = self.z.relax(self.r1cs.m);
+        RelaxedR1csInstance {
             relaxed_r1cs,
-            relaxed_z,
+            instance,
+            witness,
         }
     }
 
+    ///  check (A · Z) ◦ (B · Z) = C · Z
     pub(crate) fn is_sat(&self) -> bool {
         let R1cs { m, l: _, a, b, c } = self.r1cs.clone();
         (0..m).all(|i| {
@@ -47,8 +49,8 @@ impl<F: PrimeField> R1csInstance<F> {
         elements.iter().fold(F::zero(), |sum, element| {
             let (wire, value) = (element.0, element.1);
             let coeff = match wire {
-                Wire::Instance(index) => self.z.x[index],
                 Wire::Witness(index) => self.z.w[index],
+                Wire::Instance(index) => self.z.x[index],
                 Wire::One => self.z.one,
             };
             sum + coeff * value

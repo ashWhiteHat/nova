@@ -1,15 +1,15 @@
 use crate::matrix::DenseVectors;
-use crate::relaxed_r1cs::RelaxedR1csWitness;
+use crate::relaxed_r1cs::{RelaxedR1csInstanceData, RelaxedR1csWitness};
 
 use zkstd::common::PrimeField;
 
 /// witness for r1cs
 #[derive(Debug)]
 pub struct R1csWitness<F: PrimeField> {
-    /// public inputs and outputs
-    pub(crate) x: DenseVectors<F>,
     /// intermediate value and private inputs
     pub(crate) w: DenseVectors<F>,
+    /// public inputs and outputs
+    pub(crate) x: DenseVectors<F>,
     /// first public input element one
     pub(crate) one: F,
 }
@@ -17,9 +17,8 @@ pub struct R1csWitness<F: PrimeField> {
 impl<F: PrimeField> Default for R1csWitness<F> {
     fn default() -> Self {
         Self {
-            // init constraint system with first instance one
-            x: DenseVectors(vec![]),
             w: DenseVectors(vec![]),
+            x: DenseVectors(vec![]),
             one: F::one(),
         }
     }
@@ -28,8 +27,8 @@ impl<F: PrimeField> Default for R1csWitness<F> {
 impl<F: PrimeField> R1csWitness<F> {
     pub(crate) fn new(x: Vec<F>, w: Vec<F>) -> Self {
         Self {
-            x: DenseVectors(x),
             w: DenseVectors(w),
+            x: DenseVectors(x),
             one: F::one(),
         }
     }
@@ -54,12 +53,18 @@ impl<F: PrimeField> R1csWitness<F> {
         self.w.0.push(witness)
     }
 
-    pub(crate) fn relax(&self) -> RelaxedR1csWitness<F> {
-        let Self { x, w, one: _ } = self;
-        RelaxedR1csWitness {
-            x: x.clone(),
-            w: w.clone(),
-            u: F::one(),
-        }
+    pub(crate) fn relax(&self, m: usize) -> (RelaxedR1csWitness<F>, RelaxedR1csInstanceData<F>) {
+        let Self { w, x, one: _ } = self;
+        let e = DenseVectors(vec![F::zero(); m]);
+        let u = F::one();
+        let x = x.clone();
+        (
+            RelaxedR1csWitness {
+                w: w.clone(),
+                x: x.clone(),
+                u,
+            },
+            RelaxedR1csInstanceData { e, u, x },
+        )
     }
 }

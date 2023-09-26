@@ -1,5 +1,5 @@
 use crate::commitment::CommitmentScheme;
-use crate::committed_relaxed_r1cs::CommittedRelaxedR1CSInstance;
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1cs, R1csInstance};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
@@ -52,8 +52,8 @@ impl<C: CurveAffine> FoldingScheme<C> {
     fn prove(
         &self,
         committed_pair: (
-            CommittedRelaxedR1CSInstance<C>,
-            CommittedRelaxedR1CSInstance<C>,
+            CommittedRelaxedR1csInstance<C>,
+            CommittedRelaxedR1csInstance<C>,
         ),
     ) {
         // 0. setup params

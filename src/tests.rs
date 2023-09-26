@@ -37,6 +37,8 @@ pub(crate) fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>, l: usize) -> 
     SparseMatrix(sparse_matrix)
 }
 
+/// R1CS for: x^3 + x + 5 = y
+/// https://www.vitalik.ca/general/2016/12/10/qap.html
 pub(crate) fn example_r1cs_instance<F: PrimeField>() -> R1cs<F> {
     let m = 4;
     let l = 1;

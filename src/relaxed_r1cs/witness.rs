@@ -1,14 +1,15 @@
-use crate::{committed_relaxed_r1cs::CommittedRelaxedR1csWitness, matrix::DenseVectors};
+use crate::committed_relaxed_r1cs::CommittedRelaxedR1csWitness;
+use crate::matrix::DenseVectors;
 
 use zkstd::common::PrimeField;
 
-/// witness for relaxed r1cs
-#[derive(Debug)]
+/// witness for relaxed r1cs Z = (W, x, u)
+#[derive(Clone, Debug)]
 pub struct RelaxedR1csWitness<F: PrimeField> {
-    /// public inputs and outputs
-    pub(crate) x: DenseVectors<F>,
     /// intermediate value and private inputs
     pub(crate) w: DenseVectors<F>,
+    /// public inputs and outputs
+    pub(crate) x: DenseVectors<F>,
     /// scalar
     pub(crate) u: F,
 }
