@@ -1,5 +1,8 @@
 use crate::commitment::CommitmentScheme;
-use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
+use crate::committed_relaxed_r1cs::{
+    CommittedRelaxedR1csInstance, Instance as CommittedRelaxedR1csInstanceData,
+    Witness as CommittedRelaxedR1csWitness,
+};
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1csInstance, R1csStructure};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
@@ -31,7 +34,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
         }
     }
 
-    pub fn folding(&self) {
+    pub fn folding(&self) -> CommittedRelaxedR1csInstance<C> {
         // choose randomness
         let r_e = C::Scalar::one();
         let r_w = C::Scalar::one();
@@ -55,7 +58,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
             CommittedRelaxedR1csInstance<C>,
             CommittedRelaxedR1csInstance<C>,
         ),
-    ) {
+    ) -> CommittedRelaxedR1csInstance<C> {
         // 0. setup params
         let rt = C::Scalar::one();
         let r2 = self.r.square();
@@ -74,16 +77,22 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let r = self.r;
 
         // 3. output folded instance
-        let overline_e = overline_e1.to_extended() + overline_t * r + overline_e2 * r2;
-        let u = u1 + r * u2;
-        let overline_w = overline_w1.to_extended() + overline_w2 * r;
-        let x = x1 + x2 * r;
+        let folded_committed_r1cs_instance = Self::fold_committed_r1cs_instance(
+            committed1.instance,
+            committed2.instance,
+            r,
+            overline_t,
+        );
 
         // 4. output folded witness
-        let e = e1 + t * r + e2 * r2;
-        let r_e = r_e1 + r * rt + u1 * r_e2;
-        let w = w1 + w2 * r;
-        let r_w = r_w1 + r * r_w2;
+        let folded_committed_r1cs_witness =
+            Self::fold_committed_r1cs_witness(committed1.witness, committed2.witness, r, t, rt);
+
+        CommittedRelaxedR1csInstance {
+            committed_relaxed_r1cs: committed1.committed_relaxed_r1cs,
+            instance: folded_committed_r1cs_instance,
+            witness: folded_committed_r1cs_witness,
+        }
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
@@ -110,6 +119,42 @@ impl<C: CurveAffine> FoldingScheme<C> {
 
         // final addition and subtraction
         az2bz1 + az1bz2 - c1cz2 - c2cz1
+    }
+
+    fn fold_committed_r1cs_instance(
+        instance1: CommittedRelaxedR1csInstanceData<C>,
+        instance2: CommittedRelaxedR1csInstanceData<C>,
+        r: C::Scalar,
+        overline_t: C,
+    ) -> CommittedRelaxedR1csInstanceData<C> {
+        let r2 = r.square();
+        let (overline_e1, u1, overline_w1, x1) = instance1.get();
+        let (overline_e2, u2, overline_w2, x2) = instance2.get();
+        let overline_e = (overline_e1.to_extended() + overline_t * r + overline_e2 * r2).into();
+        let overline_w = (overline_w1.to_extended() + overline_w2 * r).into();
+        CommittedRelaxedR1csInstanceData {
+            overline_e,
+            u: u1 + r * u2,
+            overline_w,
+            x: x1 + x2 * r,
+        }
+    }
+
+    fn fold_committed_r1cs_witness(
+        witness1: CommittedRelaxedR1csWitness<C::Scalar>,
+        witness2: CommittedRelaxedR1csWitness<C::Scalar>,
+        r: C::Scalar,
+        t: DenseVectors<C::Scalar>,
+        rt: C::Scalar,
+    ) -> CommittedRelaxedR1csWitness<C::Scalar> {
+        let r2 = r.square();
+        let (e1, r_e1, w1, r_w1) = witness1.get();
+        let (e2, r_e2, w2, r_w2) = witness2.get();
+        let e = e1 + t * r + e2 * r2;
+        let r_e = r_e1 + r * rt + r2 * r_e2;
+        let w = w1 + w2 * r;
+        let r_w = r_w1 + r * r_w2;
+        CommittedRelaxedR1csWitness { e, r_e, w, r_w }
     }
 }
 
@@ -143,6 +188,6 @@ mod tests {
         let cs: CommitmentScheme<Affine> = CommitmentScheme::new(n, OsRng);
 
         let folding_scheme = FoldingScheme::new(r1cs, instanc1, instanc2, cs, r);
-        folding_scheme.folding();
+        let folded_instance = folding_scheme.folding();
     }
 }

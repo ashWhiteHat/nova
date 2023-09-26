@@ -3,9 +3,13 @@ use crate::matrix::DenseVectors;
 use zkstd::common::CurveAffine;
 
 pub(crate) struct Instance<C: CurveAffine> {
+    /// commitment for error vectors
     pub(crate) overline_e: C,
+    /// scalar
     pub(crate) u: C::Scalar,
+    /// commitment for witness vectors
     pub(crate) overline_w: C,
+    /// public inputs and outputs
     pub(crate) x: DenseVectors<C::Scalar>,
 }
 
