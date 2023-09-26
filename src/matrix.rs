@@ -23,6 +23,7 @@ impl<F: PrimeField> SparseMatrix<F> {
                 let value = match wire {
                     Wire::Instance(i) => x[i],
                     Wire::Witness(i) => w[i],
+                    Wire::One => F::one(),
                 };
                 sum + coeff * value
             })

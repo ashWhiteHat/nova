@@ -1,41 +1,39 @@
 use crate::matrix::Element;
-use crate::r1cs::{R1cs, R1csWitness};
+use crate::r1cs::{R1cs, R1csInstance, R1csWitness};
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
 
 #[derive(Debug)]
 pub struct ConstraintSystem<F: PrimeField> {
-    r1cs: R1cs<F>,
-    witness: R1csWitness<F>,
+    r1cs: R1csInstance<F>,
 }
 
 impl<F: PrimeField> ConstraintSystem<F> {
     /// init constraint system with first instance one
     pub fn new() -> Self {
         Self {
-            r1cs: R1cs::default(),
-            witness: R1csWitness::default(),
+            r1cs: R1csInstance::default(),
         }
     }
 
     /// assign instance value to constraint system
     pub fn public_wire(&mut self, instance: F) -> Wire {
-        let index = self.witness.public_len();
-        self.witness.append_instance(instance);
+        let index = self.r1cs.z.public_len();
+        self.r1cs.z.append_instance(instance);
         Wire::instance(index)
     }
 
     /// assign witness value to constraint system
     pub fn private_wire(&mut self, witness: F) -> Wire {
-        let index = self.witness.private_len();
-        self.witness.append_witness(witness);
+        let index = self.r1cs.z.private_len();
+        self.r1cs.z.append_witness(witness);
         Wire::witness(index)
     }
 
     /// constrain a + b == c
     pub fn add_constraint(&mut self, a: Wire, b: Wire, c: Wire) {
-        self.r1cs.append_a(a);
+        self.r1cs.r1cs.append_a(a);
         self.enable_constraint(b, F::one(), c)
     }
 
@@ -56,13 +54,13 @@ impl<F: PrimeField> ConstraintSystem<F> {
         b: impl Into<Element<F>>,
         c: impl Into<Element<F>>,
     ) {
-        self.r1cs.append(a, b, c);
-        self.r1cs.increment()
+        self.r1cs.r1cs.append(a, b, c);
+        self.r1cs.r1cs.increment()
     }
 
     /// check whether constraints satisfy
     pub fn is_sat(&self) -> bool {
-        self.r1cs.is_sat(&self.witness)
+        self.r1cs.is_sat()
     }
 }
 

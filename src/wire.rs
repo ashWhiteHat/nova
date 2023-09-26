@@ -4,6 +4,8 @@ pub enum Wire {
     Instance(usize),
     /// wire for private input and intermediate value
     Witness(usize),
+    /// wire for first element one
+    One,
 }
 
 impl Wire {
@@ -16,6 +18,6 @@ impl Wire {
     }
 
     pub(crate) fn one() -> Self {
-        Self::Instance(0)
+        Self::One
     }
 }

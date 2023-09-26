@@ -46,6 +46,7 @@ impl<F: PrimeField> Iterator for DenseVectorsIterator<F> {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.dense_vectors.0.len() {
+            self.index += 1;
             Some(self.dense_vectors[self.index])
         } else {
             None
@@ -75,13 +76,20 @@ impl<F: PrimeField> Mul<F> for DenseVectors<F> {
     }
 }
 
+/// Hadamard product
 impl<F: PrimeField> Mul for DenseVectors<F> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
         assert_eq!(self.0.len(), rhs.0.len());
 
-        Self(self.iter().zip(rhs.iter()).map(|(a, b)| a * b).collect())
+        Self(
+            self.0
+                .iter()
+                .zip(rhs.0.iter())
+                .map(|(a, b)| *a * *b)
+                .collect(),
+        )
     }
 }
 
