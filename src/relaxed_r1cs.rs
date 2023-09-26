@@ -22,12 +22,14 @@ pub(crate) struct RelaxedR1csInstance<F: PrimeField> {
 impl<F: PrimeField> RelaxedR1csInstance<F> {
     ///  check (A · Z) ◦ (B · Z) = u · (C · Z) + E
     pub(crate) fn is_sat(&self) -> bool {
-        let RelaxedR1CS { m, l, a, b, c } = self.relaxed_r1cs.clone();
-        let RelaxedR1csInstanceData { e, u, x } = self.instance.clone();
+        let RelaxedR1CS { m, l: _, a, b, c } = self.relaxed_r1cs.clone();
+        let RelaxedR1csInstanceData { e, u, x: _ } = self.instance.clone();
         (0..m).all(|i| {
             let a_prod = self.dot_product(&a[i]);
             let b_prod = self.dot_product(&b[i]);
+            // scalar by u
             let c_prod = self.dot_product(&c[i]) * u;
+            // E addition
             a_prod * b_prod == c_prod + e[i]
         })
     }
@@ -67,16 +69,31 @@ pub(crate) fn commit_relaxed_r1cs_instance<C: CurveAffine>(
     cs: &CommitmentScheme<C>,
 ) -> CommittedRelaxedR1csInstance<C> {
     let RelaxedR1csInstance {
-        relaxed_r1cs,
+        relaxed_r1cs: _,
         instance,
         witness,
     } = relaxed_r1cs_instance;
     let e = instance.e.clone();
-    let RelaxedR1csWitness { x, w, u: _ } = &witness;
+    let RelaxedR1csWitness { x: _, w, u: _ } = &witness;
     let committed_relaxed_r1cs = commit_relaxed_r1cs(&instance, w, cs);
     let committed_relaxed_z = commit_relaxed_z(&witness, e, r_e, r_w);
     CommittedRelaxedR1csInstance {
         committed_relaxed_r1cs,
         committed_relaxed_z,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::tests::example_relaxed_r1cs_instance;
+
+    use bls_12_381::Fr as Scalar;
+
+    #[test]
+    fn relaxed_r1cs_instance_test() {
+        for i in 0..100 {
+            let relaxed_r1cs_instance = example_relaxed_r1cs_instance::<Scalar>(i);
+            assert!(relaxed_r1cs_instance.is_sat())
+        }
     }
 }

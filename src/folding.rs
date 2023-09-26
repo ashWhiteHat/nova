@@ -117,7 +117,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
 mod tests {
     use super::*;
     use crate::r1cs::R1csInstance;
-    use crate::tests::{example_r1cs_instance, example_r1cs_witness};
+    use crate::tests::{example_r1cs, example_r1cs_witness};
 
     use bls_12_381::{Fr as Scalar, G1Affine as Affine};
     use rand_core::OsRng;
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn folding_test() {
-        let r1cs: R1cs<Scalar> = example_r1cs_instance();
+        let r1cs: R1cs<Scalar> = example_r1cs();
         let z1 = example_r1cs_witness(3);
         let z2 = example_r1cs_witness(4);
 

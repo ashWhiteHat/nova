@@ -1,5 +1,6 @@
 use crate::matrix::{Element, SparseMatrix};
-use crate::r1cs::R1cs;
+use crate::r1cs::{R1cs, R1csInstance};
+use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -39,7 +40,7 @@ pub(crate) fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>, l: usize) -> 
 
 /// R1CS for: x^3 + x + 5 = y
 /// https://www.vitalik.ca/general/2016/12/10/qap.html
-pub(crate) fn example_r1cs_instance<F: PrimeField>() -> R1cs<F> {
+pub(crate) fn example_r1cs<F: PrimeField>() -> R1cs<F> {
     let m = 4;
     let l = 1;
     let a = dense_to_sparse(
@@ -83,21 +84,9 @@ pub(crate) fn example_r1cs_witness<F: PrimeField>(input: u64) -> Vec<F> {
     ])
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    use crate::r1cs::R1csInstance;
-
-    use bls_12_381::Fr as Scalar;
-
-    #[test]
-    fn example_r1cs_test() {
-        let r1cs: R1cs<Scalar> = example_r1cs_instance();
-        for i in 0..100 {
-            let z = example_r1cs_witness(i);
-            let r1cs_instance = R1csInstance::new(&r1cs, &z);
-            assert!(r1cs_instance.is_sat())
-        }
-    }
+pub(crate) fn example_relaxed_r1cs_instance<F: PrimeField>(input: u64) -> RelaxedR1csInstance<F> {
+    let r1cs = example_r1cs();
+    let z = example_r1cs_witness(input);
+    let r1cs_instance = R1csInstance::new(&r1cs, &z);
+    r1cs_instance.relax()
 }

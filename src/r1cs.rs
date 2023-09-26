@@ -61,46 +61,17 @@ impl<F: PrimeField> R1csInstance<F> {
 #[cfg(test)]
 mod tests {
     use super::{R1cs, R1csInstance};
-    use crate::tests::{array_to_witnessess, dense_to_sparse};
+    use crate::tests::{example_r1cs, example_r1cs_witness};
 
     use bls_12_381::Fr as Scalar;
 
     #[test]
-    fn r1cs_test() {
-        // R1CS for: x^3 + x + 5 = y
-        // https://www.vitalik.ca/general/2016/12/10/qap.html
-        let m = 4;
-        let l = 1;
-        let a = dense_to_sparse::<Scalar>(
-            vec![
-                vec![0, 1, 0, 0, 0, 0],
-                vec![0, 0, 0, 1, 0, 0],
-                vec![0, 1, 0, 0, 1, 0],
-                vec![5, 0, 0, 0, 0, 1],
-            ],
-            l,
-        );
-        let b = dense_to_sparse::<Scalar>(
-            vec![
-                vec![0, 1, 0, 0, 0, 0],
-                vec![0, 1, 0, 0, 0, 0],
-                vec![1, 0, 0, 0, 0, 0],
-                vec![1, 0, 0, 0, 0, 0],
-            ],
-            l,
-        );
-        let c = dense_to_sparse::<Scalar>(
-            vec![
-                vec![0, 0, 0, 1, 0, 0],
-                vec![0, 0, 0, 0, 1, 0],
-                vec![0, 0, 0, 0, 0, 1],
-                vec![0, 0, 1, 0, 0, 0],
-            ],
-            l,
-        );
-        let r1cs = R1cs { m, l, a, b, c };
-        let z = array_to_witnessess::<Scalar>(vec![1, 3, 35, 9, 27, 30]);
-        let r1cs_instance = R1csInstance::new(&r1cs, &z);
-        assert!(r1cs_instance.is_sat())
+    fn r1cs_instance_test() {
+        let r1cs: R1cs<Scalar> = example_r1cs();
+        for i in 0..100 {
+            let z = example_r1cs_witness(i);
+            let r1cs_instance = R1csInstance::new(&r1cs, &z);
+            assert!(r1cs_instance.is_sat())
+        }
     }
 }
