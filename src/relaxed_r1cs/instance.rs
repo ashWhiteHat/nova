@@ -15,16 +15,6 @@ pub struct Instance<F: PrimeField> {
     pub(crate) x: DenseVectors<F>,
 }
 
-impl<F: PrimeField> Instance<F> {
-    pub(crate) fn new(m: usize, x: DenseVectors<F>) -> Self {
-        Self {
-            e: DenseVectors(vec![F::zero(); m]),
-            u: F::one(),
-            x,
-        }
-    }
-}
-
 pub(crate) fn commit_relaxed_r1cs_instance_data<C: CurveAffine>(
     relaxed_r1cs_instance: &Instance<C::Scalar>,
     w: &DenseVectors<C::Scalar>,

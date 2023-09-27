@@ -61,12 +61,9 @@ impl<C: CurveAffine> FoldingScheme<C> {
     ) -> CommittedRelaxedR1csInstance<C> {
         // 0. setup params
         let rt = C::Scalar::one();
-        let r2 = self.r.square();
         let (committed1, committed2) = committed_pair;
-        let (overline_e1, u1, overline_w1, x1) = committed1.instance.get();
-        let (overline_e2, u2, overline_w2, x2) = committed2.instance.get();
-        let (e1, r_e1, w1, r_w1) = committed1.witness.get();
-        let (e2, r_e2, w2, r_w2) = committed2.witness.get();
+        let u1 = committed1.instance.u;
+        let u2 = committed2.instance.u;
 
         // 1. compute cross term
         let t = self.compute_cross_term(u1, u2);
@@ -189,5 +186,6 @@ mod tests {
 
         let folding_scheme = FoldingScheme::new(r1cs, instanc1, instanc2, cs, r);
         let folded_instance = folding_scheme.folding();
+        assert!(folded_instance.is_sat())
     }
 }

@@ -6,10 +6,7 @@ pub(crate) use blueprint::CommittedRelaxedR1csStructure;
 pub(crate) use instance::Instance;
 pub(crate) use witness::Witness;
 
-use crate::matrix::Element;
-use crate::wire::Wire;
-
-use zkstd::common::{CurveAffine, Group};
+use zkstd::common::CurveAffine;
 
 #[derive(Clone, Debug)]
 pub struct CommittedRelaxedR1csInstance<C: CurveAffine> {
@@ -18,6 +15,14 @@ pub struct CommittedRelaxedR1csInstance<C: CurveAffine> {
     pub(crate) witness: Witness<C::Scalar>,
 }
 
+#[cfg(test)]
+use crate::matrix::Element;
+#[cfg(test)]
+use crate::wire::Wire;
+#[cfg(test)]
+use zkstd::common::Group;
+
+#[cfg(test)]
 impl<C: CurveAffine> CommittedRelaxedR1csInstance<C> {
     ///  check (A · Z) ◦ (B · Z) = u · (C · Z) + E
     pub(crate) fn is_sat(&self) -> bool {

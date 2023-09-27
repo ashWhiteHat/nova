@@ -8,8 +8,6 @@ pub(crate) use witness::Witness;
 
 use crate::commitment::CommitmentScheme;
 use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
-use crate::matrix::Element;
-use crate::wire::Wire;
 
 use zkstd::common::{CurveAffine, PrimeField};
 
@@ -19,6 +17,11 @@ pub(crate) struct RelaxedR1csInstance<F: PrimeField> {
     pub(crate) witness: Witness<F>,
 }
 
+#[cfg(test)]
+use crate::matrix::Element;
+#[cfg(test)]
+use crate::wire::Wire;
+#[cfg(test)]
 impl<F: PrimeField> RelaxedR1csInstance<F> {
     ///  check (A · Z) ◦ (B · Z) = u · (C · Z) + E
     pub(crate) fn is_sat(&self) -> bool {
