@@ -4,15 +4,15 @@ use crate::committed_relaxed_r1cs::{
     Witness as CommittedRelaxedR1csWitness,
 };
 use crate::matrix::DenseVectors;
-use crate::r1cs::{R1csInstance, R1csStructure};
+use crate::r1cs::{R1csStructure, Witness as R1csWitness};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub struct FoldingScheme<C: CurveAffine> {
     pub r1cs: R1csStructure<C::Scalar>,
-    pub instance1: R1csInstance<C::Scalar>,
-    pub instance2: R1csInstance<C::Scalar>,
+    pub z1: Vec<C::Scalar>,
+    pub z2: Vec<C::Scalar>,
     pub cs: CommitmentScheme<C>,
     pub r: C::Scalar,
 }
@@ -20,53 +20,62 @@ pub struct FoldingScheme<C: CurveAffine> {
 impl<C: CurveAffine> FoldingScheme<C> {
     pub fn new(
         r1cs: R1csStructure<C::Scalar>,
-        instance1: R1csInstance<C::Scalar>,
-        instance2: R1csInstance<C::Scalar>,
+        z1: Vec<C::Scalar>,
+        z2: Vec<C::Scalar>,
         cs: CommitmentScheme<C>,
         r: C::Scalar,
     ) -> Self {
         Self {
             r1cs,
-            instance1,
-            instance2,
+            z1,
+            z2,
             cs,
             r,
         }
     }
 
     pub fn folding(&self) -> CommittedRelaxedR1csInstance<C> {
-        // choose randomness
-        let r_e = C::Scalar::one();
-        let r_w = C::Scalar::one();
+        // construct r1cs instance
+        let r1cs_instance1 = self.r1cs.instantiate(&self.z1);
+        let r1cs_instance2 = self.r1cs.instantiate(&self.z2);
+        let r1cs_witness1 = r1cs_instance1.witness.clone();
+        let r1cs_witness2 = r1cs_instance2.witness.clone();
+
         // construct relaxed r1cs instance
-        let relaxed_r1cs_instance1 = self.instance1.relax();
-        let relaxed_r1cs_instance2 = self.instance2.relax();
+        let relaxed_r1cs_instance1 = r1cs_instance1.relax();
+        let relaxed_r1cs_instance2 = r1cs_instance2.relax();
+
         // commit relaxed r1cs instance
+        let (r_e1, r_w1) = (C::Scalar::one(), C::Scalar::one());
+        let (r_e2, r_w2) = (C::Scalar::one(), C::Scalar::one());
         let committed_relaxed_r1cs_instance1 =
-            commit_relaxed_r1cs_instance(relaxed_r1cs_instance1, r_e, r_w, &self.cs);
+            commit_relaxed_r1cs_instance(relaxed_r1cs_instance1, r_e1, r_w1, &self.cs);
         let committed_relaxed_r1cs_instance2 =
-            commit_relaxed_r1cs_instance(relaxed_r1cs_instance2, r_e, r_w, &self.cs);
-        self.prove((
+            commit_relaxed_r1cs_instance(relaxed_r1cs_instance2, r_e2, r_w2, &self.cs);
+
+        // output folded committed relaxed r1cs instance
+        self.prove(
+            r1cs_witness1,
+            r1cs_witness2,
             committed_relaxed_r1cs_instance1,
             committed_relaxed_r1cs_instance2,
-        ))
+        )
     }
 
     fn prove(
         &self,
-        committed_pair: (
-            CommittedRelaxedR1csInstance<C>,
-            CommittedRelaxedR1csInstance<C>,
-        ),
+        w1: R1csWitness<C::Scalar>,
+        w2: R1csWitness<C::Scalar>,
+        committed1: CommittedRelaxedR1csInstance<C>,
+        committed2: CommittedRelaxedR1csInstance<C>,
     ) -> CommittedRelaxedR1csInstance<C> {
         // 0. setup params
         let rt = C::Scalar::one();
-        let (committed1, committed2) = committed_pair;
         let u1 = committed1.instance.u;
         let u2 = committed2.instance.u;
 
         // 1. compute cross term
-        let t = self.compute_cross_term(u1, u2);
+        let t = self.compute_cross_term(w1, w2, u1, u2);
         let overline_t = self.cs.commit(&t, &rt);
 
         // 2. sample challenge
@@ -93,10 +102,16 @@ impl<C: CurveAffine> FoldingScheme<C> {
     }
 
     /// (A · Z2) ◦ (B · Z1) + (A · Z1) ◦ (B · Z2) - c1(C · Z2) - c2(C · Z1)
-    fn compute_cross_term(&self, c1: C::Scalar, c2: C::Scalar) -> DenseVectors<C::Scalar> {
+    fn compute_cross_term(
+        &self,
+        w1: R1csWitness<C::Scalar>,
+        w2: R1csWitness<C::Scalar>,
+        c1: C::Scalar,
+        c2: C::Scalar,
+    ) -> DenseVectors<C::Scalar> {
         let R1csStructure { m, l: _, a, b, c } = self.r1cs.clone();
-        let (x1, w1) = self.instance1.witness.get();
-        let (x2, w2) = self.instance2.witness.get();
+        let (x1, w1) = w1.get();
+        let (x2, w2) = w2.get();
 
         // r1cs and z vectors dot product
         let az2 = a.prod(m, &x2, &w2);
@@ -158,7 +173,6 @@ impl<C: CurveAffine> FoldingScheme<C> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::r1cs::R1csInstance;
     use crate::tests::{example_r1cs, example_r1cs_witness};
 
     use bls_12_381::{Fr as Scalar, G1Affine as Affine};
@@ -172,19 +186,16 @@ mod tests {
     }
 
     #[test]
-    fn folding_test() {
-        let r1cs: R1csStructure<Scalar> = example_r1cs();
+    fn r1cs_folding_test() {
+        let r1cs = example_r1cs();
         let z1 = example_r1cs_witness(3);
         let z2 = example_r1cs_witness(4);
-
-        let instanc1 = R1csInstance::new(&r1cs, &z1);
-        let instanc2 = R1csInstance::new(&r1cs, &z2);
 
         let r: Scalar = challenge_r();
         let n = r1cs.m.next_power_of_two() as u64;
         let cs: CommitmentScheme<Affine> = CommitmentScheme::new(n, OsRng);
 
-        let folding_scheme = FoldingScheme::new(r1cs, instanc1, instanc2, cs, r);
+        let folding_scheme = FoldingScheme::new(r1cs, z1, z2, cs, r);
         let folded_instance = folding_scheme.folding();
         assert!(folded_instance.is_sat())
     }

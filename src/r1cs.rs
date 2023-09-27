@@ -21,7 +21,7 @@ pub struct R1csInstance<F: PrimeField> {
 
 impl<F: PrimeField> R1csInstance<F> {
     pub(crate) fn new(r1cs: &R1csStructure<F>, witness: &Vec<F>) -> Self {
-        let (instance, witness) = r1cs.instance_and_witness(witness.to_vec());
+        let (instance, witness) = r1cs.instance_and_witness(witness);
         let r1cs = r1cs.clone();
         Self {
             r1cs,

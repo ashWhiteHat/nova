@@ -5,6 +5,7 @@ use zkstd::common::PrimeField;
 
 pub(crate) use super::instance::Instance;
 pub(crate) use super::witness::Witness;
+use super::R1csInstance;
 
 /// https://eprint.iacr.org/2021/370.pdf
 /// 4.1 Definition 10 R1CS
@@ -55,7 +56,16 @@ impl<F: PrimeField> R1csStructure<F> {
         self.m += 1
     }
 
-    pub(crate) fn instance_and_witness(&self, witnesses: Vec<F>) -> (Instance<F>, Witness<F>) {
+    pub(crate) fn instantiate(&self, z: &Vec<F>) -> R1csInstance<F> {
+        let (instance, witness) = self.instance_and_witness(z);
+        R1csInstance {
+            r1cs: self.clone(),
+            instance,
+            witness,
+        }
+    }
+
+    pub(crate) fn instance_and_witness(&self, witnesses: &Vec<F>) -> (Instance<F>, Witness<F>) {
         let w = DenseVectors(witnesses[self.l..].to_vec());
         let x = DenseVectors(witnesses[..self.l].to_vec());
         let one = F::one();

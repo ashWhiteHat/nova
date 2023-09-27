@@ -4,7 +4,7 @@ use crate::relaxed_r1cs::{Instance as RelaxedR1csInstance, Witness as RelaxedR1c
 use zkstd::common::PrimeField;
 
 /// witness for r1cs (W, x, 1)
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Witness<F: PrimeField> {
     /// intermediate value and private inputs
     pub(crate) w: DenseVectors<F>,
