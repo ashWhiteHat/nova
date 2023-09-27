@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod commitment;
 mod committed_relaxed_r1cs;
 mod constraint_system;
