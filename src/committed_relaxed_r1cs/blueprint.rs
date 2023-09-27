@@ -2,6 +2,7 @@ use crate::matrix::SparseMatrix;
 
 use zkstd::common::PrimeField;
 
+#[derive(Clone, Debug)]
 pub(crate) struct CommittedRelaxedR1csStructure<F: PrimeField> {
     /// instance length
     pub(crate) m: usize,

@@ -2,6 +2,7 @@ use crate::matrix::DenseVectors;
 
 use zkstd::common::CurveAffine;
 
+#[derive(Clone, Debug)]
 pub(crate) struct Instance<C: CurveAffine> {
     /// commitment for error vectors
     pub(crate) overline_e: C,

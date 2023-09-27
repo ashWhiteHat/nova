@@ -3,7 +3,7 @@ use crate::matrix::DenseVectors;
 use zkstd::common::PrimeField;
 
 /// witness for committed relaxed r1cs
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Witness<F: PrimeField> {
     /// error vectors
     pub(crate) e: DenseVectors<F>,
