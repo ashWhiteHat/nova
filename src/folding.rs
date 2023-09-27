@@ -10,10 +10,15 @@ use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub struct FoldingScheme<C: CurveAffine> {
+    /// r1cs martix A, B and C
     pub r1cs: R1csStructure<C::Scalar>,
+    /// witness for one instance
     pub z1: Vec<C::Scalar>,
+    /// witness for other instance
     pub z2: Vec<C::Scalar>,
+    /// commitment scheme
     pub cs: CommitmentScheme<C>,
+    /// randomness
     pub r: C::Scalar,
 }
 
@@ -95,7 +100,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
             Self::fold_committed_r1cs_witness(committed1.witness, committed2.witness, r, t, rt);
 
         CommittedRelaxedR1csInstance {
-            committed_relaxed_r1cs: committed1.committed_relaxed_r1cs,
+            committed_relaxed_r1cs: self.r1cs.relax().commit(),
             instance: folded_committed_r1cs_instance,
             witness: folded_committed_r1cs_witness,
         }

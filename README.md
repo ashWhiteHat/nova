@@ -64,3 +64,8 @@ if
 - $(A · Z) ◦ (B · Z) = u · (C · Z) + E$
 
 ## [Folding Scheme](https://eprint.iacr.org/2021/370.pdf#page=15&zoom=100,100,300)
+
+## Todo
+
+- [ ] Transcript Replacement
+- [ ] Folded Instance Verification

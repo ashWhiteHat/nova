@@ -1,4 +1,4 @@
-name: Pull Reqeust Check
+name: Merge Master Check
 on:
   push:
     branches: [master]
@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Run Unit Test
+        uses: actions/checkout@v2
       - uses: actions-rs/cargo@v1
         with:
           command: test
