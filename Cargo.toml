@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-zkstd = { version = "0.0.15", default-features = false }
+zkstd = { version = "0.0.20", default-features = false }
+merlin = { version = "3.0", default-features = false }
 
 [dev-dependencies]
-bls-12-381 = { version = "0.0.16", default-features = false }
+bls-12-381 = { version = "0.0.20", default-features = false }
 rand_core = { version="0.6.4", features = ["getrandom"] }
