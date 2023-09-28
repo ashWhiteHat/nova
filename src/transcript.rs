@@ -1,7 +1,10 @@
-use merlin::Transcript;
+use core::mem;
+pub(crate) use merlin::Transcript;
 use zkstd::common::{CurveAffine, FftField};
 
 pub trait ChallengeTranscript<C: CurveAffine> {
+    fn init(label: &[u8]) -> Self;
+
     fn append_point(&mut self, label: &'static [u8], v: &C);
 
     fn append_scalar(&mut self, label: &'static [u8], v: &C::Scalar);
@@ -10,6 +13,11 @@ pub trait ChallengeTranscript<C: CurveAffine> {
 }
 
 impl<C: CurveAffine> ChallengeTranscript<C> for Transcript {
+    fn init(label: &[u8]) -> Self {
+        let label = unsafe { mem::transmute(label) };
+        Transcript::new(label)
+    }
+
     fn append_point(&mut self, label: &'static [u8], v: &C) {
         let x = C::Scalar::from(v.get_x());
         let y = C::Scalar::from(v.get_y());

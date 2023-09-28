@@ -6,6 +6,7 @@ use crate::committed_relaxed_r1cs::{
 use crate::matrix::DenseVectors;
 use crate::r1cs::{R1csStructure, Witness as R1csWitness};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
+use crate::transcript::{ChallengeTranscript, Transcript};
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
@@ -78,14 +79,17 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let rt = C::Scalar::one();
         let u1 = committed1.instance.u;
         let u2 = committed2.instance.u;
+        let mut tr = ChallengeTranscript::<C>::init(b"fold-relaxed-r1cs");
+        committed1.instance.append_to_transcript(&mut tr);
+        committed2.instance.append_to_transcript(&mut tr);
 
         // 1. compute cross term
         let t = self.compute_cross_term(w1, w2, u1, u2);
         let overline_t = self.cs.commit(&t, &rt);
+        tr.append_point(b"commit-t", &overline_t);
 
         // 2. sample challenge
-        // TODO: should be replaced by transcript
-        let r = self.r;
+        let r = <Transcript as ChallengeTranscript<C>>::challenge_scalar(&mut tr, b"random-scalar");
 
         // 3. output folded instance
         let folded_committed_r1cs_instance = Self::fold_committed_r1cs_instance(
@@ -147,8 +151,8 @@ impl<C: CurveAffine> FoldingScheme<C> {
         let r2 = r.square();
         let (overline_e1, u1, overline_w1, x1) = instance1.get();
         let (overline_e2, u2, overline_w2, x2) = instance2.get();
-        let overline_e = (overline_e1.to_extended() + overline_t * r + overline_e2 * r2).into();
-        let overline_w = (overline_w1.to_extended() + overline_w2 * r).into();
+        let overline_e = (overline_e1 + overline_t * r + overline_e2 * r2).into();
+        let overline_w = (overline_w1 + overline_w2 * r).into();
         CommittedRelaxedR1csInstanceData {
             overline_e,
             u: u1 + r * u2,
