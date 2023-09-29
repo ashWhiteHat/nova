@@ -70,7 +70,7 @@ mod tests {
     use super::{R1csInstance, R1csStructure};
     use crate::tests::{example_r1cs, example_r1cs_witness};
 
-    use bls_12_381::Fr as Scalar;
+    use jub_jub::Fr as Scalar;
 
     #[test]
     fn r1cs_instance_test() {

@@ -78,7 +78,7 @@ pub(crate) fn commit_relaxed_r1cs_instance<C: CurveAffine>(
 mod tests {
     use crate::tests::example_relaxed_r1cs_instance;
 
-    use bls_12_381::Fr as Scalar;
+    use jub_jub::Fr as Scalar;
 
     #[test]
     fn relaxed_r1cs_instance_test() {

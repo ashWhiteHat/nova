@@ -68,7 +68,7 @@ impl<F: PrimeField> ConstraintSystem<F> {
 mod tests {
     use super::ConstraintSystem;
 
-    use bls_12_381::Fr as Scalar;
+    use jub_jub::Fr as Scalar;
     use zkstd::common::PrimeField;
 
     #[test]

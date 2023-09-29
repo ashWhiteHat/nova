@@ -8,5 +8,5 @@ zkstd = { version = "0.0.20", default-features = false }
 merlin = { version = "3.0", default-features = false }
 
 [dev-dependencies]
-bls-12-381 = { version = "0.0.20", default-features = false }
+jub-jub = { version = "0.0.17", default-features = false }
 rand_core = { version="0.6.4", features = ["getrandom"] }

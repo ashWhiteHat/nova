@@ -58,7 +58,7 @@ impl<C: CurveAffine> CommittedRelaxedR1csInstance<C> {
 mod tests {
     use crate::tests::example_committed_relaxed_r1cs_instance;
 
-    use bls_12_381::G1Affine as Affine;
+    use jub_jub::JubjubAffine as Affine;
 
     #[test]
     fn committed_relaxed_r1cs_instance_test() {

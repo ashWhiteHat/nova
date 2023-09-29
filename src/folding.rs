@@ -184,7 +184,7 @@ mod tests {
     use super::*;
     use crate::tests::{example_r1cs, example_r1cs_witness};
 
-    use bls_12_381::{Fr as Scalar, G1Affine as Affine};
+    use jub_jub::{Fr as Scalar, JubjubAffine as Affine};
     use rand_core::OsRng;
     use zkstd::common::PrimeField;
 
