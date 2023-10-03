@@ -1,5 +1,5 @@
 [package]
-name = "relaxed-r1cs"
+name = "nova"
 version = "0.1.0"
 edition = "2021"
 
