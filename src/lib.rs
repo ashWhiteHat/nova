@@ -5,6 +5,7 @@ mod committed_relaxed_r1cs;
 mod constraint_system;
 mod folding;
 mod matrix;
+mod nifs;
 mod r1cs;
 mod relaxed_r1cs;
 mod transcript;
