@@ -1,6 +1,6 @@
-use crate::commitment::CommitmentScheme;
 use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
 use crate::matrix::{Element, SparseMatrix};
+use crate::public_param::PublicParams;
 use crate::r1cs::{R1csInstance, R1csStructure};
 use crate::relaxed_r1cs::{commit_relaxed_r1cs_instance, RelaxedR1csInstance};
 use crate::wire::Wire;
@@ -103,6 +103,6 @@ pub(crate) fn example_committed_relaxed_r1cs_instance<C: CurveAffine>(
     let relaxed_r1cs_instance = r1cs_instance.relax();
     let (r_e, r_w) = (C::Scalar::one(), C::Scalar::one());
     let n = r1cs.m.next_power_of_two() as u64;
-    let cs = CommitmentScheme::new(n, OsRng);
+    let cs = PublicParams::new(n, OsRng);
     commit_relaxed_r1cs_instance(relaxed_r1cs_instance, r_e, r_w, &cs)
 }

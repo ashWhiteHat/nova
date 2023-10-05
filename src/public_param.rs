@@ -8,12 +8,12 @@ pub(crate) struct Proof<C: CurveAffine> {
     r_u: C::Scalar,
 }
 
-pub struct CommitmentScheme<C: CurveAffine> {
+pub struct PublicParams<C: CurveAffine> {
     h: C,
     domain: Vec<C>,
 }
 
-impl<C: CurveAffine> CommitmentScheme<C> {
+impl<C: CurveAffine> PublicParams<C> {
     pub(crate) fn new(n: u64, mut r: impl RngCore) -> Self {
         let h = C::Affine::random(&mut r).into();
         let domain = (0..=1 << n)

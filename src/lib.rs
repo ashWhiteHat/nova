@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 
-mod commitment;
 mod committed_relaxed_r1cs;
 mod constraint_system;
 mod folding;
 mod matrix;
 mod nifs;
+mod public_param;
 mod r1cs;
 mod relaxed_r1cs;
 mod transcript;
