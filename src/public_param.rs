@@ -38,4 +38,8 @@ impl<C: CurveAffine> PublicParams<C> {
             .for_each(|base| hasher.update(&base.to_raw_bytes()));
         hasher.finalize()
     }
+
+    pub(crate) fn size(&self) -> usize {
+        self.domain.len()
+    }
 }
