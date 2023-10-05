@@ -3,6 +3,7 @@
 mod committed_relaxed_r1cs;
 mod constraint_system;
 mod folding;
+mod hash;
 mod matrix;
 mod nifs;
 mod public_param;

@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 zkstd = { version = "0.0.20", default-features = false }
 merlin = { version = "3.0", default-features = false }
+blake2b_simd = { version = "1", default-features = false }
 
 [dev-dependencies]
 jub-jub = { version = "0.0.17", default-features = false }

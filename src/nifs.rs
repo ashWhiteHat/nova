@@ -16,9 +16,10 @@ impl<C: CurveAffine> Nifs<C> {
     pub(crate) fn k(
         pp: PublicParams<C>,
         r1cs: R1csStructure<C::Scalar>,
-    ) -> (ProvingKey, VerificationKey) {
+    ) -> (ProvingKey<C>, VerificationKey<C::Scalar>) {
         let R1csStructure { m, l, a, b, c } = r1cs;
-        (ProvingKey { pp, a, b, c },)
+        let digest = pp.digest();
+        (ProvingKey { pp, a, b, c }, VerificationKey { digest })
     }
 }
 

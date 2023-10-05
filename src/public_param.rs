@@ -1,3 +1,4 @@
+use crate::hash::Digest;
 use crate::matrix::DenseVectors;
 
 use zkstd::common::{CurveAffine, CurveGroup, RngCore};
@@ -28,5 +29,13 @@ impl<C: CurveAffine> PublicParams<C> {
                 .zip(self.domain.iter())
                 .fold(C::Extended::ADDITIVE_IDENTITY, |sum, (v, e)| sum + *e * v))
         .into()
+    }
+
+    pub(crate) fn digest(&self) -> C::Scalar {
+        let mut hasher = Digest::default();
+        self.domain
+            .iter()
+            .for_each(|base| hasher.update(base.to_bytes()));
+        hasher.finalize()
     }
 }
