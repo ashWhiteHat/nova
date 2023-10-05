@@ -66,6 +66,17 @@ if
 - $\overline W = Com(pp_W, W, r_W)$
 - $(A · Z) ◦ (B · Z) = u · (C · Z) + E$
 
+## [Folding Scheme](https://eprint.iacr.org/2021/370.pdf#page=10&zoom=100,100,650)
+
+$R$ is a relation over public parameters, structure, instance, and witness tuples.
+
+A folding scheme for $R$ consists of
+
+- $g$: probabilistic polynomial time generator algorithm
+- $K(pp, s) \rightarrow (pk, vk)$: On input $pp$ and common structure $s$ between instances to be folded, outputs a prover key $pk$ and a verifier key $vk$
+- $P(pk, (u_1,w_1),(u_2,w_2)) \rightarrow (u,w)$: On input instance-witness tuples $(u_1,w_1)$ and $(u_2,w_2)$ outputs a new instance-witness tuple $(u,w)$ of the same size
+- $V(vk,u_1,u_2) \rightarrow u$: On input instances $u_1$ and $u_2$, outputs a new instance $u$
+
 ## IVC (Incrementally Verifiable Computation)
 [An IVC Scheme with Proof Compression](https://eprint.iacr.org/2021/370.pdf#page=16&zoom=100,100,790)
 
