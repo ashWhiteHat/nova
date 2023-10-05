@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-zkstd = { version = "0.0.20", default-features = false }
+zkstd = { version = "0.0.21", default-features = false }
 merlin = { version = "3.0", default-features = false }
 blake2b_simd = { version = "1", default-features = false }
 
 [dev-dependencies]
-jub-jub = { version = "0.0.17", default-features = false }
+jub-jub = { version = "0.0.18", default-features = false }
 rand_core = { version="0.6.4", features = ["getrandom"] }

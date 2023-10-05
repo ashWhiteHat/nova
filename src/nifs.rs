@@ -1,4 +1,4 @@
-use crate::matrix::SparseMatrix;
+use crate::prover::ProvingKey;
 use crate::public_param::PublicParams;
 use crate::r1cs::R1csStructure;
 
@@ -17,17 +17,16 @@ impl<C: CurveAffine> Nifs<C> {
         pp: PublicParams<C>,
         r1cs: R1csStructure<C::Scalar>,
     ) -> (ProvingKey<C>, VerificationKey<C::Scalar>) {
-        let R1csStructure { m, l, a, b, c } = r1cs;
+        let R1csStructure {
+            m: _,
+            l: _,
+            a,
+            b,
+            c,
+        } = r1cs;
         let digest = pp.digest();
         (ProvingKey { pp, a, b, c }, VerificationKey { digest })
     }
-}
-
-struct ProvingKey<C: CurveAffine> {
-    pp: PublicParams<C>,
-    a: SparseMatrix<C::Scalar>,
-    b: SparseMatrix<C::Scalar>,
-    c: SparseMatrix<C::Scalar>,
 }
 
 struct VerificationKey<F: PrimeField> {

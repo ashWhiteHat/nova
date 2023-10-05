@@ -35,7 +35,7 @@ impl<C: CurveAffine> PublicParams<C> {
         let mut hasher = Digest::default();
         self.domain
             .iter()
-            .for_each(|base| hasher.update(base.to_bytes()));
+            .for_each(|base| hasher.update(&base.to_raw_bytes()));
         hasher.finalize()
     }
 }

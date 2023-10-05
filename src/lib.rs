@@ -6,6 +6,7 @@ mod folding;
 mod hash;
 mod matrix;
 mod nifs;
+mod prover;
 mod public_param;
 mod r1cs;
 mod relaxed_r1cs;
