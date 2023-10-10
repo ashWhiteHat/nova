@@ -1,6 +1,6 @@
 use crate::committed_relaxed_r1cs::Instance as CommittedRelaxedR1csInstance;
 use crate::matrix::DenseVectors;
-use crate::public_param::PublicParams;
+use crate::public_param::PedersenCommitment;
 
 use zkstd::common::{CurveAffine, PrimeField};
 
@@ -18,7 +18,7 @@ pub struct Instance<F: PrimeField> {
 pub(crate) fn commit_relaxed_r1cs_instance_data<C: CurveAffine>(
     relaxed_r1cs_instance: &Instance<C::Scalar>,
     w: &DenseVectors<C::Scalar>,
-    cs: &PublicParams<C>,
+    cs: &PedersenCommitment<C>,
 ) -> CommittedRelaxedR1csInstance<C> {
     let Instance { e, u, x } = relaxed_r1cs_instance;
     CommittedRelaxedR1csInstance {

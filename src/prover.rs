@@ -4,25 +4,29 @@ use crate::committed_relaxed_r1cs::{
 };
 use crate::matrix::{DenseVectors, SparseMatrix};
 use crate::proof::IvcProof;
-use crate::public_param::PublicParams;
+use crate::public_param::PedersenCommitment;
 use crate::r1cs::{R1csStructure, Witness as R1csWitness};
 
 use zkstd::common::{CurveAffine, PrimeField, Ring};
 
 pub(crate) struct ProvingKey<C: CurveAffine> {
-    pub(crate) pp: PublicParams<C>,
+    pub(crate) pp: PedersenCommitment<C>,
     pub(crate) f: R1csStructure<C::Scalar>,
+    pub(crate) i: usize,
 }
 
 impl<C: CurveAffine> ProvingKey<C> {
+    pub(crate) fn new(pp: PedersenCommitment<C>, f: R1csStructure<C::Scalar>) -> Self {
+        Self { pp, f, i: 0 }
+    }
+
     pub(crate) fn recurse(
         &self,
-        i: usize,
         z0: Vec<C::Scalar>,
         zi: Vec<C::Scalar>,
         πi: IvcProof<C>,
     ) -> IvcProof<C> {
-        if i == 0 {}
+        if self.i == 0 {}
         let IvcProof {
             upper_pair,
             lower_pair,
@@ -69,7 +73,7 @@ impl<C: CurveAffine> ProvingKey<C> {
         c1: C::Scalar,
         c2: C::Scalar,
     ) -> DenseVectors<C::Scalar> {
-        let Self { pp, f } = self.clone();
+        let Self { pp, f, i: _ } = self.clone();
         let R1csStructure { m, l: _, a, b, c } = f;
         let (x1, w1) = w1.get();
         let (x2, w2) = w2.get();

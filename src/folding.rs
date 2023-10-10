@@ -3,7 +3,7 @@ use crate::committed_relaxed_r1cs::{
     Witness as CommittedRelaxedR1csWitness,
 };
 use crate::matrix::DenseVectors;
-use crate::public_param::PublicParams;
+use crate::public_param::PedersenCommitment;
 use crate::r1cs::{R1csStructure, Witness as R1csWitness};
 use crate::relaxed_r1cs::commit_relaxed_r1cs_instance;
 use crate::transcript::{ChallengeTranscript, Transcript};
@@ -18,7 +18,7 @@ pub struct FoldingScheme<C: CurveAffine> {
     /// witness for other instance
     pub z2: Vec<C::Scalar>,
     /// commitment scheme
-    pub cs: PublicParams<C>,
+    pub cs: PedersenCommitment<C>,
     /// randomness
     pub r: C::Scalar,
 }
@@ -28,7 +28,7 @@ impl<C: CurveAffine> FoldingScheme<C> {
         r1cs: R1csStructure<C::Scalar>,
         z1: Vec<C::Scalar>,
         z2: Vec<C::Scalar>,
-        cs: PublicParams<C>,
+        cs: PedersenCommitment<C>,
         r: C::Scalar,
     ) -> Self {
         Self {
@@ -202,7 +202,7 @@ mod tests {
 
         let r: Scalar = challenge_r();
         let n = r1cs.m.next_power_of_two() as u64;
-        let cs: PublicParams<Affine> = PublicParams::new(n, OsRng);
+        let cs: PedersenCommitment<Affine> = PedersenCommitment::new(n, OsRng);
 
         let folding_scheme = FoldingScheme::new(r1cs, z1, z2, cs, r);
         let folded_instance = folding_scheme.folding();

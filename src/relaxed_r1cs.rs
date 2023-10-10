@@ -7,7 +7,7 @@ pub(crate) use instance::{commit_relaxed_r1cs_instance_data, Instance};
 pub(crate) use witness::Witness;
 
 use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
-use crate::public_param::PublicParams;
+use crate::public_param::PedersenCommitment;
 
 use zkstd::common::{CurveAffine, PrimeField};
 
@@ -55,7 +55,7 @@ pub(crate) fn commit_relaxed_r1cs_instance<C: CurveAffine>(
     relaxed_r1cs_instance: RelaxedR1csInstance<C::Scalar>,
     r_e: C::Scalar,
     r_w: C::Scalar,
-    cs: &PublicParams<C>,
+    cs: &PedersenCommitment<C>,
 ) -> CommittedRelaxedR1csInstance<C> {
     let RelaxedR1csInstance {
         relaxed_r1cs,

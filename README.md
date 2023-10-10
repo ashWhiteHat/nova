@@ -91,3 +91,10 @@ $$
 - $P(pk,(u_1,w_1), (u_2,w_2))$: $r \leftarrow p(vk,u_1,u_2,\overline T)$ output result
 - $V(vk,u_1,u_2,\overline T)$: $r \leftarrow p(vk,u_1,u_2,\overline T)$ output result
 - $p$: cryptographic hash function
+
+## Pedersen Commitment
+
+For vectors over $\mathbb F^m$
+
+- $pp \rightarrow Gen(1^λ,m)$: Sample $g \rightarrow R \mathbb G^m, h \rightarrow R \mathbb G$. Output $(g, h)$
+- $C \rightarrow Com(pp, x \in \mathbb F^m, r \in \mathbb F$: Output $h^r·\prod_{i\in [0,...,m]}g_i^{x_i}$
