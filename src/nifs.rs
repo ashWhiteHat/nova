@@ -1,4 +1,4 @@
-use crate::prover::ProvingKey;
+use crate::prover::Prover;
 use crate::public_param::PedersenCommitment;
 use crate::r1cs::R1csStructure;
 
@@ -16,9 +16,9 @@ impl<C: CurveAffine> Nifs<C> {
     pub(crate) fn k(
         pp: PedersenCommitment<C>,
         r1cs: R1csStructure<C::Scalar>,
-    ) -> (ProvingKey<C>, VerificationKey<C::Scalar>) {
+    ) -> (Prover<C>, VerificationKey<C::Scalar>) {
         let digest = pp.digest();
-        (ProvingKey { pp, f: r1cs, i: 0 }, VerificationKey { digest })
+        (Prover { pp, f: r1cs, i: 0 }, VerificationKey { digest })
     }
 }
 
