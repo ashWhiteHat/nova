@@ -10,17 +10,17 @@ use crate::matrix::Element;
 use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
-use zkstd::common::PrimeField;
+use zkstd::common::{Group, TwistedEdwardsAffine};
 
 #[derive(Debug, Default)]
-pub struct R1csInstance<F: PrimeField> {
-    pub(crate) r1cs: R1csStructure<F>,
-    pub(crate) instance: Instance<F>,
-    pub(crate) witness: Witness<F>,
+pub struct R1csInstance<C: TwistedEdwardsAffine> {
+    pub(crate) r1cs: R1csStructure<C>,
+    pub(crate) instance: Instance<C::Scalar>,
+    pub(crate) witness: Witness<C>,
 }
 
-impl<F: PrimeField> R1csInstance<F> {
-    pub(crate) fn new(r1cs: &R1csStructure<F>, witness: &Vec<F>) -> Self {
+impl<C: TwistedEdwardsAffine> R1csInstance<C> {
+    pub(crate) fn new(r1cs: &R1csStructure<C>, witness: &Vec<C::Scalar>) -> Self {
         let (instance, witness) = r1cs.instance_and_witness(witness);
         let r1cs = r1cs.clone();
         Self {
@@ -30,7 +30,7 @@ impl<F: PrimeField> R1csInstance<F> {
         }
     }
 
-    pub(crate) fn relax(&self) -> RelaxedR1csInstance<F> {
+    pub(crate) fn relax(&self) -> RelaxedR1csInstance<C> {
         let relaxed_r1cs = self.r1cs.relax();
         let (witness, instance) = self.witness.relax(self.r1cs.m);
         RelaxedR1csInstance {
@@ -52,8 +52,8 @@ impl<F: PrimeField> R1csInstance<F> {
     }
 
     // dot product for each gate
-    fn dot_product(&self, elements: &Vec<Element<F>>) -> F {
-        elements.iter().fold(F::zero(), |sum, element| {
+    fn dot_product(&self, elements: &Vec<Element<C::Scalar>>) -> C::Scalar {
+        elements.iter().fold(C::Scalar::zero(), |sum, element| {
             let (wire, value) = (element.0, element.1);
             let coeff = match wire {
                 Wire::Witness(index) => self.witness.w[index],
@@ -70,11 +70,11 @@ mod tests {
     use super::{R1csInstance, R1csStructure};
     use crate::tests::{example_r1cs, example_r1cs_witness};
 
-    use jub_jub::Fr as Scalar;
+    use jub_jub::JubjubAffine as Curve;
 
     #[test]
     fn r1cs_instance_test() {
-        let r1cs: R1csStructure<Scalar> = example_r1cs();
+        let r1cs: R1csStructure<Curve> = example_r1cs();
         for i in 0..100 {
             let z = example_r1cs_witness(i);
             let r1cs_instance = R1csInstance::new(&r1cs, &z);

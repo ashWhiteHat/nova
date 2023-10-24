@@ -1,7 +1,7 @@
 use crate::matrix::{DenseVectors, Element, SparseMatrix};
 use crate::relaxed_r1cs::RelaxedR1csStructure;
 
-use zkstd::common::PrimeField;
+use zkstd::common::{Ring, TwistedEdwardsAffine};
 
 pub(crate) use super::instance::Instance;
 pub(crate) use super::witness::Witness;
@@ -11,17 +11,17 @@ use super::R1csInstance;
 /// 4.1 Definition 10 R1CS
 ///  (A · Z) ◦ (B · Z) = C · Z
 #[derive(Clone, Debug)]
-pub struct R1csStructure<F: PrimeField> {
+pub struct R1csStructure<C: TwistedEdwardsAffine> {
     /// matrix length
     pub(crate) m: usize,
     /// instance length
     pub(crate) l: usize,
-    pub(crate) a: SparseMatrix<F>,
-    pub(crate) b: SparseMatrix<F>,
-    pub(crate) c: SparseMatrix<F>,
+    pub(crate) a: SparseMatrix<C::Scalar>,
+    pub(crate) b: SparseMatrix<C::Scalar>,
+    pub(crate) c: SparseMatrix<C::Scalar>,
 }
 
-impl<F: PrimeField> Default for R1csStructure<F> {
+impl<C: TwistedEdwardsAffine> Default for R1csStructure<C> {
     fn default() -> Self {
         Self {
             m: 0,
@@ -33,19 +33,19 @@ impl<F: PrimeField> Default for R1csStructure<F> {
     }
 }
 
-impl<F: PrimeField> R1csStructure<F> {
+impl<C: TwistedEdwardsAffine> R1csStructure<C> {
     pub(crate) fn append(
         &mut self,
-        a: impl Into<Element<F>>,
-        b: impl Into<Element<F>>,
-        c: impl Into<Element<F>>,
+        a: impl Into<Element<C::Scalar>>,
+        b: impl Into<Element<C::Scalar>>,
+        c: impl Into<Element<C::Scalar>>,
     ) {
         self.a[self.m].push(a.into());
         self.b[self.m].push(b.into());
         self.c[self.m].push(c.into());
     }
 
-    pub(crate) fn append_a(&mut self, a: impl Into<Element<F>>) {
+    pub(crate) fn append_a(&mut self, a: impl Into<Element<C::Scalar>>) {
         self.a[self.m].push(a.into())
     }
 
@@ -56,7 +56,7 @@ impl<F: PrimeField> R1csStructure<F> {
         self.m += 1
     }
 
-    pub(crate) fn instantiate(&self, z: &Vec<F>) -> R1csInstance<F> {
+    pub(crate) fn instantiate(&self, z: &Vec<C::Scalar>) -> R1csInstance<C> {
         let (instance, witness) = self.instance_and_witness(z);
         R1csInstance {
             r1cs: self.clone(),
@@ -65,14 +65,17 @@ impl<F: PrimeField> R1csStructure<F> {
         }
     }
 
-    pub(crate) fn instance_and_witness(&self, witnesses: &Vec<F>) -> (Instance<F>, Witness<F>) {
+    pub(crate) fn instance_and_witness(
+        &self,
+        witnesses: &Vec<C::Scalar>,
+    ) -> (Instance<C::Scalar>, Witness<C>) {
         let w = DenseVectors(witnesses[self.l..].to_vec());
         let x = DenseVectors(witnesses[..self.l].to_vec());
-        let one = F::one();
+        let one = C::Scalar::one();
         (Instance { x: x.clone() }, Witness { w, x, one })
     }
 
-    pub(crate) fn relax(&self) -> RelaxedR1csStructure<F> {
+    pub(crate) fn relax(&self) -> RelaxedR1csStructure<C::Scalar> {
         let Self { m, l, a, b, c } = self.clone();
         RelaxedR1csStructure { m, l, a, b, c }
     }

@@ -3,7 +3,7 @@ use crate::r1cs::{R1csInstance, R1csStructure};
 use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
-use zkstd::common::PrimeField;
+use zkstd::common::{PrimeField, TwistedEdwardsAffine};
 
 pub(crate) fn array_to_witnessess<F: PrimeField>(witnesses: Vec<u64>) -> Vec<F> {
     witnesses
@@ -40,7 +40,7 @@ pub(crate) fn dense_to_sparse<F: PrimeField>(value: Vec<Vec<u64>>, l: usize) -> 
 
 /// R1CS for: x^3 + x + 5 = y
 /// https://www.vitalik.ca/general/2016/12/10/qap.html
-pub(crate) fn example_r1cs<F: PrimeField>() -> R1csStructure<F> {
+pub(crate) fn example_r1cs<C: TwistedEdwardsAffine>() -> R1csStructure<C> {
     let m = 4;
     let l = 1;
     let a = dense_to_sparse(
@@ -84,7 +84,9 @@ pub(crate) fn example_r1cs_witness<F: PrimeField>(input: u64) -> Vec<F> {
     ])
 }
 
-pub(crate) fn example_relaxed_r1cs_instance<F: PrimeField>(input: u64) -> RelaxedR1csInstance<F> {
+pub(crate) fn example_relaxed_r1cs_instance<C: TwistedEdwardsAffine>(
+    input: u64,
+) -> RelaxedR1csInstance<C> {
     let r1cs = example_r1cs();
     let z = example_r1cs_witness(input);
     let r1cs_instance = R1csInstance::new(&r1cs, &z);
