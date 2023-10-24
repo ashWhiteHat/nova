@@ -1,12 +1,9 @@
-use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
 use crate::matrix::{Element, SparseMatrix};
-use crate::public_param::PedersenCommitment;
 use crate::r1cs::{R1csInstance, R1csStructure};
-use crate::relaxed_r1cs::{commit_relaxed_r1cs_instance, RelaxedR1csInstance};
+use crate::relaxed_r1cs::RelaxedR1csInstance;
 use crate::wire::Wire;
 
-use rand_core::OsRng;
-use zkstd::common::{CurveAffine, PrimeField, Ring};
+use zkstd::common::PrimeField;
 
 pub(crate) fn array_to_witnessess<F: PrimeField>(witnesses: Vec<u64>) -> Vec<F> {
     witnesses
@@ -92,17 +89,4 @@ pub(crate) fn example_relaxed_r1cs_instance<F: PrimeField>(input: u64) -> Relaxe
     let z = example_r1cs_witness(input);
     let r1cs_instance = R1csInstance::new(&r1cs, &z);
     r1cs_instance.relax()
-}
-
-pub(crate) fn example_committed_relaxed_r1cs_instance<C: CurveAffine>(
-    input: u64,
-) -> CommittedRelaxedR1csInstance<C> {
-    let r1cs = example_r1cs();
-    let z = example_r1cs_witness(input);
-    let r1cs_instance = R1csInstance::new(&r1cs, &z);
-    let relaxed_r1cs_instance = r1cs_instance.relax();
-    let (r_e, r_w) = (C::Scalar::one(), C::Scalar::one());
-    let n = r1cs.m.next_power_of_two() as u64;
-    let cs = PedersenCommitment::new(n, OsRng);
-    commit_relaxed_r1cs_instance(relaxed_r1cs_instance, r_e, r_w, &cs)
 }

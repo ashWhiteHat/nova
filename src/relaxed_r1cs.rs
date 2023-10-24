@@ -3,13 +3,10 @@ mod instance;
 mod witness;
 
 pub(crate) use blueprint::RelaxedR1csStructure;
-pub(crate) use instance::{commit_relaxed_r1cs_instance_data, Instance};
+pub(crate) use instance::Instance;
 pub(crate) use witness::Witness;
 
-use crate::committed_relaxed_r1cs::CommittedRelaxedR1csInstance;
-use crate::public_param::PedersenCommitment;
-
-use zkstd::common::{CurveAffine, PrimeField};
+use zkstd::common::PrimeField;
 
 pub(crate) struct RelaxedR1csInstance<F: PrimeField> {
     pub(crate) relaxed_r1cs: RelaxedR1csStructure<F>,
@@ -48,29 +45,6 @@ impl<F: PrimeField> RelaxedR1csInstance<F> {
             };
             sum + coeff * value
         })
-    }
-}
-
-pub(crate) fn commit_relaxed_r1cs_instance<C: CurveAffine>(
-    relaxed_r1cs_instance: RelaxedR1csInstance<C::Scalar>,
-    r_e: C::Scalar,
-    r_w: C::Scalar,
-    cs: &PedersenCommitment<C>,
-) -> CommittedRelaxedR1csInstance<C> {
-    let RelaxedR1csInstance {
-        relaxed_r1cs,
-        instance,
-        witness,
-    } = relaxed_r1cs_instance;
-    let committed_relaxed_r1cs = relaxed_r1cs.commit();
-    let e = instance.e.clone();
-    let w = witness.w.clone();
-    let instance = commit_relaxed_r1cs_instance_data(&instance, &w, cs);
-    let witness = witness.commit(e, r_e, r_w);
-    CommittedRelaxedR1csInstance {
-        committed_relaxed_r1cs,
-        instance,
-        witness,
     }
 }
 

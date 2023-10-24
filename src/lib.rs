@@ -1,8 +1,6 @@
 #![allow(dead_code)]
 
-mod committed_relaxed_r1cs;
 mod constraint_system;
-mod folding;
 mod hash;
 mod matrix;
 mod nifs;
@@ -18,4 +16,3 @@ mod wire;
 mod tests;
 
 pub use constraint_system::ConstraintSystem;
-pub use folding::FoldingScheme;

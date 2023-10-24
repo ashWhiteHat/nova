@@ -1,14 +1,8 @@
-use crate::committed_relaxed_r1cs::{
-    CommittedRelaxedR1csInstance, Instance as CommittedRelaxedR1csInstanceData,
-    Witness as CommittedRelaxedR1csWitness,
-};
-use crate::matrix::DenseVectors;
 use crate::proof::IvcProof;
 use crate::public_param::PedersenCommitment;
-use crate::r1cs::{Instance as R1csInstance, R1csStructure, Witness as R1csWitness};
-use crate::relaxed_r1cs::{Instance as RelaxedR1csInstance, Witness as RelaxedR1csWitness};
+use crate::r1cs::R1csStructure;
 
-use zkstd::common::{CurveAffine, PrimeField, Ring};
+use zkstd::common::CurveAffine;
 
 pub(crate) struct Prover<C: CurveAffine> {
     pub(crate) pp: PedersenCommitment<C>,
@@ -34,7 +28,7 @@ impl<C: CurveAffine> Prover<C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::relaxed_r1cs::Witness as RelaxedR1csWitness;
+    use crate::relaxed_r1cs::{Instance as RelaxedR1csInstance, Witness as RelaxedR1csWitness};
     use crate::tests::example_r1cs;
 
     use jub_jub::Fr as Scalar;
