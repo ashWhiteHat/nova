@@ -84,6 +84,12 @@ pub(crate) fn example_r1cs_witness<F: PrimeField>(input: u64) -> Vec<F> {
     ])
 }
 
+pub(crate) fn example_r1cs_instance<C: TwistedEdwardsAffine>(input: u64) -> R1csInstance<C> {
+    let r1cs = example_r1cs();
+    let z = example_r1cs_witness(input);
+    R1csInstance::new(&r1cs, &z)
+}
+
 pub(crate) fn example_relaxed_r1cs_instance<C: TwistedEdwardsAffine>(
     input: u64,
 ) -> RelaxedR1csInstance<C> {

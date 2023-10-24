@@ -31,10 +31,10 @@ impl<C: TwistedEdwardsAffine> R1csInstance<C> {
     }
 
     pub(crate) fn relax(&self) -> RelaxedR1csInstance<C> {
-        let relaxed_r1cs = self.r1cs.relax();
+        let r1cs = self.r1cs.clone();
         let (witness, instance) = self.witness.relax(self.r1cs.m);
         RelaxedR1csInstance {
-            relaxed_r1cs,
+            r1cs,
             instance,
             witness,
         }

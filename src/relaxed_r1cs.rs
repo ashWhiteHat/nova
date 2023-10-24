@@ -2,14 +2,14 @@ mod blueprint;
 mod instance;
 mod witness;
 
-pub(crate) use blueprint::RelaxedR1csStructure;
 pub(crate) use instance::Instance;
 pub(crate) use witness::Witness;
 
+use crate::r1cs::R1csStructure;
 use zkstd::common::TwistedEdwardsAffine;
 
 pub(crate) struct RelaxedR1csInstance<C: TwistedEdwardsAffine> {
-    pub(crate) relaxed_r1cs: RelaxedR1csStructure<C::Scalar>,
+    pub(crate) r1cs: R1csStructure<C>,
     pub(crate) instance: Instance<C>,
     pub(crate) witness: Witness<C>,
 }
@@ -24,14 +24,9 @@ use zkstd::common::Group;
 impl<C: TwistedEdwardsAffine> RelaxedR1csInstance<C> {
     ///  check (A · Z) ◦ (B · Z) = u · (C · Z) + E
     pub(crate) fn is_sat(&self) -> bool {
-        let RelaxedR1csStructure { m, l: _, a, b, c } = self.relaxed_r1cs.clone();
-        let Witness { w: _, e } = self.witness.clone();
-        let Instance {
-            commit_e: _,
-            commit_w: _,
-            u,
-            x: _,
-        } = self.instance.clone();
+        let R1csStructure { m, l: _, a, b, c } = self.r1cs.clone();
+        let e = self.witness.e.clone();
+        let u = self.instance.u.clone();
         (0..m).all(|i| {
             let a_prod = self.dot_product(&a[i]);
             let b_prod = self.dot_product(&b[i]);

@@ -1,5 +1,4 @@
 use crate::matrix::{DenseVectors, Element, SparseMatrix};
-use crate::relaxed_r1cs::RelaxedR1csStructure;
 
 use zkstd::common::{Ring, TwistedEdwardsAffine};
 
@@ -73,10 +72,5 @@ impl<C: TwistedEdwardsAffine> R1csStructure<C> {
         let x = DenseVectors(witnesses[..self.l].to_vec());
         let one = C::Scalar::one();
         (Instance { x: x.clone() }, Witness { w, x, one })
-    }
-
-    pub(crate) fn relax(&self) -> RelaxedR1csStructure<C::Scalar> {
-        let Self { m, l, a, b, c } = self.clone();
-        RelaxedR1csStructure { m, l, a, b, c }
     }
 }
